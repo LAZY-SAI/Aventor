@@ -14,7 +14,7 @@ const About = () => {
         {/* Grid 1 */}
         <div className="flex items-end grid-default-color grid-1">
           <figure className="absolute items-center left-18 -top-15  ">
-            <Globe scale={100} />
+            <Globe  />
           </figure>
 
           <div className="z-10">
@@ -38,29 +38,44 @@ const About = () => {
           </div>
           <figure className="absolute left-[30%] top-[10%]"></figure>
         </div>
-
         {/* Grid 3 */}
-        <div className="grid-default-color grid-3 flex flex-col justify-center items-center p-6">
+        <div className="flex flex-col items-end grid-default-color grid-3">
+          <div className="z-10">
+            <h2 className="headtext">Why Choose Us?</h2>
+            <p className="subtext">
+              Expert Guides: Connect with local experts who know Nepal inside
+              out.
+              <br />
+              Easy Booking: Seamlessly book guides and experiences through our
+              user-friendly platform.
+              <br />
+              Hidden Gems: Discover off-the-beaten-path destinations and unique
+              experiences.
+            </p>
+          </div>
+        </div>
+        {/* Grid 4 */}
+        <div className="grid-default-color grid-4 flex flex-col justify-center items-center p-6">
           <figure className="absolute inset-4 -ml-[40%] ">
             <Canvas
               camera={{
                 position: [4, 6, 6], // top-right, looking down
                 fov: 50,
               }}
-              style={{ width: "60vw", height: "50vh" }}
+              style={{ width: "108vw", height: "60vh" }}
             >
               <Float />
               <ambientLight intensity={0.5} />
-              <directionalLight position={[12, 15, 9]} intensity={10} />
+              <directionalLight position={[15, 15, 9]} intensity={10} />
 
               {/* Boots */}
-              <group position={[-5, 0.5, 0.3]}>
+              <group position={[-6, 0.5, 0.3]}>
                 <Boots />
-                <Shadow position={[0, -1, 0]} scale={[2, 2, 1]} opacity={1} />
+                <Shadow position={[-0.1, 0, 1]} scale={[5, 3, 1]} opacity={1} />
               </group>
 
               {/* Backpack */}
-              <group position={[5.4, 0.9, -1.5]}>
+              <group position={[9.5, 1.7, -4.6]}>
                 <Backpack />
                 <Shadow
                   position={[-1.2, -1.2, 0.3]}

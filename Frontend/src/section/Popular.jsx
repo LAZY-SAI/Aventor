@@ -1,17 +1,40 @@
-
+import { FaArrowRight } from "react-icons/fa";
 
 const Popular = () => {
+  const popularItems = [
+    { id: 1, name: "Annapurna", image: "image1.jpg" },
+    { id: 2, name: "Mardi", image: "image2.jpg" },
+    { id: 3, name: "Lumbini", image: "image3.jpg" },
+  ];
+
   return (
     <section className="c-space section-spacing">
-      <h2 className="text-heading">Popular one's</h2>
-      <div className="grid grid-col-2 gap-4 md:grid-cols-6
-        md:auto-rows-[18rem] mt-12 ">
-         {/*grid-1 */}
-         
+      <div className="relative flex items-center justify-between">
+        <h2 className="text-heading">Popular Ones</h2>
+        <button className="flex items-center gap-2 text-sm font-medium text-blue-500 hover:text-blue-600 transition">
+          View All <FaArrowRight />
+        </button>
+      </div>
 
-        </div>
+      <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3">
+        {popularItems.map((item) => (
+          <div
+            key={item.id}
+            className="bg-white/10 backdrop-blur-sm rounded-2xl overflow-hidden shadow-md hover:scale-105 transition-transform duration-300"
+          >
+            <img
+              src={item.image}
+              alt={item.name}
+              className="w-full h-48 object-cover"
+            />
+            <h3 className="text-center text-lg font-semibold mt-3 mb-4">
+              {item.name}
+            </h3>
+          </div>
+        ))}
+      </div>
     </section>
-  )
-}
+  );
+};
 
-export default Popular
+export default Popular;
