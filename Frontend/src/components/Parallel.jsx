@@ -23,7 +23,7 @@ const Parallax = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Responsive parallax values - reduced on mobile
+  // Responsive parallax values
   const mountain = useTransform(
     smoothScroll,
     [0, 0.5],
@@ -98,7 +98,7 @@ const Parallax = () => {
           draggable="false"
         />
 
-        {/* Jungle 3 with responsive margin */}
+        {/* Jungle 3  */}
         <motion.img
           src="/assets/jungle3.png"
           alt="Jungle layer 3"

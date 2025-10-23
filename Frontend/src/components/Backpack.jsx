@@ -2,7 +2,7 @@
 import { useGLTF } from '@react-three/drei'
 
 export function Backpack(props) {
-  const { nodes, materials } = useGLTF('/models/blackbag.glb')
+  const { nodes, materials } = useGLTF('/models/backpack.glb')
   return (
     <group {...props} dispose={null} scale={0.025}
     rotation={[-Math.PI/28, -0.8, 0.3]}>
@@ -25,4 +25,4 @@ export function Backpack(props) {
   )
 }
 
-useGLTF.preload('/models/blackbag.glb')
+useGLTF.preload('/models/backpack.glb')

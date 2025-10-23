@@ -1,7 +1,9 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, Shadow } from "@react-three/drei";
-import { Boots } from "../components/Boots";
 import { Backpack } from "../components/Backpack";
+import { Boots } from "../components/Boots";
+
+
 import { InteractiveHoverButton } from "../components/Button";
 import { easing } from "maath";
 import Globe from "../components/Globe";
@@ -14,7 +16,7 @@ const About = () => {
         {/* Grid 1 */}
         <div className="flex items-end grid-default-color grid-1">
           <figure className="absolute items-center left-18 -top-15  ">
-            <Globe  />
+            <Globe />
           </figure>
 
           <div className="z-10">
@@ -61,6 +63,8 @@ const About = () => {
               camera={{
                 position: [4, 6, 6], // top-right, looking down
                 fov: 50,
+                near: 0.1,
+                far: 2000,
               }}
               style={{ width: "108vw", height: "60vh" }}
             >
@@ -75,7 +79,7 @@ const About = () => {
               </group>
 
               {/* Backpack */}
-              <group position={[9.5, 1.7, -4.6]}>
+              <group position={[9.6, 1.6, -4.6]}>
                 <Backpack />
                 <Shadow
                   position={[-1.2, -1.2, 0.3]}
@@ -83,7 +87,7 @@ const About = () => {
                   opacity={1}
                 />
               </group>
-
+        
               <Rig />
             </Canvas>
           </figure>
@@ -109,8 +113,8 @@ const About = () => {
 function Rig() {
   return useFrame((state, delta) => {
     const targetPos = [
-      4 + state.mouse.x * 0.5, // horizontal sway
-      6 - state.mouse.y * 0.5, // vertical tilt
+      4 + state.mouse.x * 0.2, // horizontal sway
+      6 - state.mouse.y * 0.4, // vertical tilt
       6,
     ];
     easing.damp3(state.camera.position, targetPos, 0.25, delta);

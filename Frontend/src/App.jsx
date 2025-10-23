@@ -3,12 +3,14 @@ import { Route, Routes } from 'react-router-dom'
 import Land from './section/Landing'
 import About from './section/About'
 import Popular from './section/Popular'
+import Feature from './section/Feature'
 const App = () => {
   return (
     <div className="container mx-auto max-w-7xl">
       <Land/>
       <About/>
       <Popular/>
+      <Feature/>
       {/* <Routes>
         <Route path='/' element={<Land />} />
 
