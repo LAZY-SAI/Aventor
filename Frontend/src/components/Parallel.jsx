@@ -9,7 +9,11 @@ import { useState, useEffect } from "react";
 import HeroText from "./HeroText";
 const Parallax = () => {
   const { scrollYProgress } = useScroll();
-  const smoothScroll = useSpring(scrollYProgress, { damping: 70 });
+ const smoothScroll = useSpring(scrollYProgress, {
+  damping: 30,
+  stiffness: 80,
+  mass: 0.4,
+});
   const [isMobile, setIsMobile] = useState(false);
 
   // Detect mobile screens
