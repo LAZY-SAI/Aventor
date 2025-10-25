@@ -16,7 +16,7 @@ const Parallax = () => {
 });
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detect mobile screens
+  
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -36,12 +36,12 @@ const Parallax = () => {
   const jungle1 = useTransform(
     smoothScroll,
     [0, 1],
-    ["0%", isMobile ? "15%" : "30%"]
+    ["0%", isMobile ? "0%" : "3%"]
   );
   const jungle2 = useTransform(
     smoothScroll,
     [0, 1],
-    ["0%", isMobile ? "10%" : "20%"]
+    ["0%", isMobile ? "1%" : "3%"]
   );
   const jungle3 = useTransform(
     smoothScroll,
@@ -61,7 +61,7 @@ const Parallax = () => {
   const man = useTransform(
     smoothScroll,
     [0, 1],
-    ["0%", isMobile ? "2%" : "4%"]
+    ["0%", isMobile ? "0%" : "2%"]
   );
 
   return (

@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 
-export function InteractiveHoverButton({ children, className, ...props }) {
+export function Button({ children, className, ...props }) {
   return (
     <button
       className={twMerge(

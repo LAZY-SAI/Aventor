@@ -1,13 +1,15 @@
+import { useNavigate } from "react-router-dom";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, Shadow } from "@react-three/drei";
 import { Backpack } from "../components/Backpack";
 import { Boots } from "../components/Boots";
 
-
-import { InteractiveHoverButton } from "../components/Button";
+import { Button } from "../components/Button";
 import { easing } from "maath";
 import Globe from "../components/Globe";
+
 const About = () => {
+  const navigate = useNavigate();
   return (
     <section className="c-space section-spacing">
       <h2 className="text-heading">About Us</h2>
@@ -87,7 +89,7 @@ const About = () => {
                   opacity={1}
                 />
               </group>
-        
+
               <Rig />
             </Canvas>
           </figure>
@@ -99,11 +101,12 @@ const About = () => {
               Sign up, book a guide, or discover amazing destinations today!
             </p>
           </div>
-          <InteractiveHoverButton className="w-35 h-12 flex flex-row">
+          <Button className="w-35 h-12 flex flex-row" 
+          onClick={()=> navigate("/signup")}>
             <p className="subtext" style={{ color: "white" }}>
               Sign up
             </p>
-          </InteractiveHoverButton>
+          </Button>
         </div>
       </div>
     </section>
