@@ -19,7 +19,7 @@ const Parallax = () => {
       <div className="sticky top-0 h-screen overflow-hidden">
         {/* Background sky */}
         <img
-          src="/assets/background.png"
+          src="/assets/webp/background.webp"
           alt="Sky background"
           className="absolute inset-0 w-full h-full object-cover -z-50"
           draggable="false"
@@ -35,7 +35,7 @@ const Parallax = () => {
 
         {/* Jungle 1 */}
         <img
-          src="/assets/jungle1.png"
+          src="/assets/webp/jungle1.webp"
           alt="Jungle layer 1"
           className="absolute inset-0 w-full h-full object-cover -z-30"
           draggable="false"
@@ -43,7 +43,7 @@ const Parallax = () => {
 
         {/* Jungle 2 */}
         <img
-          src="/assets/jungle2.png"
+          src="/assets/webp/jungle2.webp"
           alt="Jungle layer 2"
           className="absolute inset-0 w-full h-full object-cover -z-20"
           draggable="false"
@@ -51,7 +51,7 @@ const Parallax = () => {
 
         {/* Jungle 3 */}
         <img
-          src="/assets/jungle3.png"
+          src="/assets/webp/jungle3.webp"
           alt="Jungle layer 3"
           className="absolute inset-0 w-full h-full object-cover -z-10 md:ml-20 ml-4"
           draggable="false"
@@ -59,7 +59,7 @@ const Parallax = () => {
 
         {/* Jungle 4 */}
         <img
-          src="/assets/jungle4.png"
+          src="/assets/webp/jungle4.webp"
           alt="Jungle layer 4"
           className="absolute inset-0 w-full h-full object-cover z-0"
           draggable="false"
@@ -67,7 +67,7 @@ const Parallax = () => {
 
         {/* Jungle 5 */}
         <img
-          src="/assets/jungle5.png"
+          src="/assets/webp/jungle5.webp"
           alt="Jungle layer 5"
           className="absolute inset-0 w-full h-full object-cover z-10"
           draggable="false"
@@ -75,7 +75,7 @@ const Parallax = () => {
 
         {/* Foreground Man */}
         <img
-          src="/assets/man_on_mountain.png"
+          src="/assets/webp/man_on_mountain.webp"
           alt="Man on mountain"
           className="absolute inset-0 w-full h-full object-cover z-20"
           draggable="false"
