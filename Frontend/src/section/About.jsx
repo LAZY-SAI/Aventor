@@ -75,16 +75,16 @@ const About = () => {
               <directionalLight position={[15, 15, 9]} intensity={10} />
 
               {/* Boots */}
-              <group position={[-6, 0.5, 0.3]}>
+              <group position={[-7, 0.5, 0.3]}>
                 <Boots />
                 <Shadow position={[-0.1, 0, 1]} scale={[5, 3, 1]} opacity={1} />
               </group>
 
               {/* Backpack */}
-              <group position={[9.6, 1.6, -4.6]}>
+              <group position={[9.8, 1.6, -4.6]}>
                 <Backpack />
                 <Shadow
-                  position={[-1.2, -1.2, 0.3]}
+                  position={[-1, -1.2, 0.3]}
                   scale={[2, 2, 1]}
                   opacity={1}
                 />
