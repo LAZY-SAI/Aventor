@@ -5,6 +5,7 @@ import PopUp from "../../components/admin/admin.pop";
 import DestEdit from "../../components/admin/DestEdit";
 import { ToastContainer } from "react-toastify";
 import { FaMapMarkerAlt, FaEdit, FaSearch, FaPlus } from "react-icons/fa";
+import AuthImage from "./AuthImage"; 
 
 const Adestination = () => {
   const [destStats, setDestStats] = useState({ destinationCount: 0 });
@@ -138,22 +139,21 @@ const Adestination = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4 max-h-[75vh] overflow-y-auto pr-2 no-scrollbar">
         {filteredDetail.map((item) => {
           const hasImage = item.images && item.images.length > 0;
-          const imageUrl = hasImage
-            ? `${baseUri}${item.images[0].imageUrl}`
-            : null;
-
+          
+         const imageUrl = hasImage ? item.images[0].imageUrl : null
           return (
             <div
               key={item.id}
               className="group flex flex-col bg-gray-900/40 hover:bg-gray-800/60 transition-all duration-300 rounded-2xl border border-gray-800 hover:border-emerald-500/50 overflow-hidden"
             >
-              {/* Card Image Area */}
+              {/* Card Image Area - Using AuthImage Component */}
               <div className="relative h-44 w-full bg-gray-950 overflow-hidden">
                 {imageUrl ? (
-                  <img
+                  <AuthImage 
                     src={imageUrl}
                     alt={item.name || "Destination"}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    fallbackLetter={item.name.charAt(0) || "?"}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-800 font-black text-5xl">

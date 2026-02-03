@@ -31,7 +31,7 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
     totalDays: "",
     startDate: "",
     endDate: "",
-    estimationBudget: "",
+    estimatedBudget: "",
   };
 
   const [loading, setLoading] = useState(false);
@@ -45,7 +45,7 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
     if (!isOpen) {
       setFormData(initialState);
     }
-  }, [isOpen]);
+  },[isOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,7 +59,7 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(`${baseUri}/itinerary`, {
+      const res = await fetch(`${baseUri}/create/itinerary`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -188,9 +188,9 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
                     </span>
                     <input
                       type="number"
-                      name="estimationBudget"
+                      name="estimatedBudget"
                       placeholder="50000"
-                      value={formData.estimationBudget}
+                      value={formData.estimatedBudget}
                       onChange={handleChange}
                       className={`${inputClass} pl-10`}
                     />

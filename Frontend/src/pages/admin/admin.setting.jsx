@@ -28,7 +28,7 @@ const Setting = () => {
         <div className="lg:col-span-8 space-y-8">
           
           <Panel title="Profile Identity" icon={<FaUserShield className="text-emerald-500" />}>
-            {/* SaaS Avatar Section */}
+          
             <div className="flex flex-col md:flex-row items-center gap-8 py-4 mb-4">
               <div className="relative group">
                 <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-emerald-500 to-blue-600 flex items-center justify-center text-3xl font-black text-white shadow-2xl rotate-3 group-hover:rotate-0 transition-transform duration-500">

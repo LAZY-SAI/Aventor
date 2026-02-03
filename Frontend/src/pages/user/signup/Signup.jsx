@@ -143,7 +143,7 @@ const Signup = () => {
         
           <div className="p-12 transition-all duration-500">
             <h2 className="text-4xl font-black mb-4 uppercase tracking-tighter leading-none">
-              {!isLoginView ? "Hello, Traveler!" : "Welcome Back!"}
+              {isLoginView ? "Hello, Traveler!" : "Welcome Back!"}
             </h2>
             <p className="text-indigo-100 mb-10 font-medium">
               {isLoginView 

@@ -32,7 +32,7 @@ const Notify = () => {
     e.preventDefault();
     setIsSending(true);
 
-    // Simulate API Delay
+
     setTimeout(() => {
       const newNotification = {
         id: Date.now(),
@@ -51,7 +51,7 @@ const Notify = () => {
   };
 
   useEffect(() => {
-    // Simulated fetch or real API call
+  
     // fetch("/api/notifications").then...
   }, []);
 
