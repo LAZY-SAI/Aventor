@@ -48,7 +48,7 @@ itineraryRoute.post("/create/itinerary", async (req, res) => {
     console.log("Sending payload:", JSON.stringify(payload, null, 2));
 
     const response = await axios.post(
-      `${BACKEND}/itineraries`,
+      `${BACKEND}/api/v1/admin/itineraries`,
       payload,
       {
         headers: {

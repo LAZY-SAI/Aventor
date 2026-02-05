@@ -2,11 +2,8 @@ import { useState, useEffect } from "react";
 import Model from "../Model";
 import { toast } from "react-toastify";
 import {
-  FaMapMarkerAlt,
   FaCheckCircle,
   FaCalendarAlt,
-  FaMoneyBillWave,
-  FaAlignLeft,
 } from "react-icons/fa";
 
 const FormSection = ({ title, icon, children }) => (
@@ -31,7 +28,7 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
     totalDays: "",
     startDate: "",
     endDate: "",
-    estimatedBudget: "",
+    estimatedBudget: "", // Matched to your table's key name
   };
 
   const [loading, setLoading] = useState(false);
@@ -45,7 +42,7 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
     if (!isOpen) {
       setFormData(initialState);
     }
-  },[isOpen]);
+  }, [isOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,14 +65,15 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
         body: JSON.stringify(formData),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        const data = await res.json();
         toast.success("Itinerary Created Successfully");
-        if (onSave) onSave(data);
+        // Trigger the parent fetch function to refresh the list
+        if (onSave) onSave(); 
         onClose();
       } else {
-        const errorData = await res.json();
-        toast.error(errorData.message || "Failed to create itinerary");
+        toast.error(data.message || "Failed to create itinerary");
       }
     } catch (err) {
       toast.error("Network error. Please try again.");
@@ -199,7 +197,7 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
               </FormSection>
 
               {/* ACTION FOOTER */}
-              <div className="bottom-0  pt-6 pb-2 mt-8 flex flex-col md:flex-row justify-end items-center gap-4 border-t border-gray-800/50">
+              <div className="bottom-0 pt-6 pb-2 mt-8 flex flex-col md:flex-row justify-end items-center gap-4 border-t border-gray-800/50">
                 <button
                   type="button"
                   onClick={onClose}

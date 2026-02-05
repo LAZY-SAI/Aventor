@@ -2,15 +2,8 @@ import {Router} from 'express'
 
 const useRoute = Router();
 
-//user signup route
-useRoute.post('/signup', (req, res) => {
-     console.log("data", req.body);
-  const { username, password, email } = req.body;
-   if (!username || !password || !email) {
-        return res.status(400).json({ message: 'All fields are required' });
-    }
-   return res.status(201).json({ message: 'User registered successfully', username, email });
-});
+//userdetails
+
 
 
 //user login route

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import Model from "../Model";
 import { toast } from "react-toastify";
+import imageCompression from 'browser-image-compression';
 import {
   FaCloudUploadAlt,
   FaTrash,
@@ -10,6 +11,8 @@ import {
   FaMoneyBillWave,
   FaCheckCircle,
 } from "react-icons/fa";
+
+
 
 const FormSection = ({ title, icon, children }) => (
   <div className="mb-10 group">
@@ -62,7 +65,7 @@ const DestEdit = ({ isOpen, onClose, onSave, destId }) => {
           }
         );
         const data = await res.json();
-        
+     
         // Set form data
         setFormData({
           ...data,
@@ -73,9 +76,11 @@ const DestEdit = ({ isOpen, onClose, onSave, destId }) => {
 
         // Set preview URL
         if (data.images?.length > 0) {
-          const imageUrl = `${baseUri}${data.images[0].imageUrl}`;
+          const rawUrl = data.images[0].imageUrl
+          const imageUrl = rawUrl.startsWith("http")
+          ? rawUrl : `${baseUri}${rawUrl}`
           setPreviewUrl(imageUrl);
-          console.log("Image URL:", imageUrl);
+          
         } else {
           setPreviewUrl(null);
         }
@@ -89,16 +94,41 @@ const DestEdit = ({ isOpen, onClose, onSave, destId }) => {
     fetchData();
   }, [destId, isOpen, token, baseUri]);
 
-  const handleChange = (e) => {
+  const handleChange = async(e) => {
     const { name, value, type, checked, files } = e.target;
     
-    if (type === "file") {
+    if (name === "image") {
       const file = files[0];
       if (file) {
         setNewImageFile(file);
         setPreviewUrl(URL.createObjectURL(file));
+        const options ={
+          maxSizeMB:5,
+          maxWidthOrHeight:1920,
+          useWebWorker:true
+        }
+        try
+        {
+          const compressedFile = await imageCompression(file, options)
+          console.log(`Compressed to : ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`)
+           setNewImageFile(compressedFile);
+        }
+        catch(error)
+        {
+          console.error("compression error",error)
+             setNewImageFile(file);
+        }
       }
       return;
+    }
+
+     if (name === "safetyLevel") {
+      const val = parseInt(value, 10);
+      if (value === "") {
+        setFormData((prev) => ({ ...prev, [name]: "" }));
+        return;
+      }
+      if (val < 1 || val > 5) return;
     }
     
     setFormData((prev) => ({
@@ -146,12 +176,10 @@ const DestEdit = ({ isOpen, onClose, onSave, destId }) => {
     const loadingId = toast.loading("Updating destination...");
 
     try {
-      // Prepare tags
       const tagsArray = typeof formData.tags === "string"
         ? formData.tags.split(",").map((t) => t.trim()).filter(t => t !== "")
         : formData.tags || [];
 
-      // Prepare the destination data matching the API schema
       const destinationData = {
         name: formData.name,
         shortDescription: formData.shortDescription || "",
@@ -179,21 +207,40 @@ const DestEdit = ({ isOpen, onClose, onSave, destId }) => {
         hasGuideServices: formData.hasGuideServices || false,
       };
 
-      
-      if (!newImageFile && formData.images && formData.images.length > 0) {
+      // If user picked a NEW image, upload to Cloudinary first
+      if (newImageFile) {
+        const imageFormData = new FormData();
+        imageFormData.append("file", newImageFile);
+
+        const uploadRes = await fetch(`${baseUri}/uploads/destination`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: imageFormData,
+        });
+
+        if (!uploadRes.ok) throw new Error("Image upload failed");
+
+        const uploadData = await uploadRes.json();
+        const newImageUrl = uploadData.fileUrl || uploadData.url;
+
+        destinationData.images = [{
+          imageUrl: newImageUrl,
+          caption: formData.name,
+          isPrimary: true
+        }];
+
+      } else if (formData.images && formData.images.length > 0) {
+        // No new image picked - keep existing images
         destinationData.images = formData.images.map(img => ({
           imageUrl: img.imageUrl,
           caption: img.caption || formData.name,
           isPrimary: img.isPrimary !== undefined ? img.isPrimary : true
         }));
-      } else if (newImageFile) {
-     
-        destinationData.images = formData.images || [];
       }
 
       console.log("Updating with data:", destinationData);
 
-      // Update the destination
+      // Send update to backend
       const updateRes = await fetch(
         `${baseUri}/update/destinations/${destId}`,
         {
@@ -212,7 +259,7 @@ const DestEdit = ({ isOpen, onClose, onSave, destId }) => {
       }
 
       const updatedData = await updateRes.json();
-      
+
       toast.update(loadingId, {
         render: "Updated successfully!",
         type: "success",
@@ -222,6 +269,7 @@ const DestEdit = ({ isOpen, onClose, onSave, destId }) => {
 
       onSave(updatedData);
       onClose();
+
     } catch (error) {
       console.error("Update error:", error);
       toast.update(loadingId, {
@@ -293,6 +341,7 @@ const DestEdit = ({ isOpen, onClose, onSave, destId }) => {
                   accept="image/*"
                   className="hidden"
                 />
+                <p className="text-sm font-semibold text-red-500">Image Must be Less than 5mb</p>
               </div>
 
               {/* GENERAL INFORMATION */}
@@ -515,6 +564,26 @@ const DestEdit = ({ isOpen, onClose, onSave, destId }) => {
                     type="number"
                     name="entranceFeeForeign"
                     value={formData.entranceFeeForeign || ""}
+                    onChange={handleChange}
+                    className={inputClass}
+                  />
+                </div>
+                 <div className="md:col-span-2">
+                  <label className={labelClass}>Longitude</label>
+                  <input
+                    type="number"
+                    name="longitude"
+                    value={formData.longitude}
+                    onChange={handleChange}
+                    className={inputClass}
+                  />
+                </div>
+                 <div className="md:col-span-2">
+                  <label className={labelClass}>latitude</label>
+                  <input
+                    type="number"
+                    name="latitude"
+                    value={formData.latitude}
                     onChange={handleChange}
                     className={inputClass}
                   />
