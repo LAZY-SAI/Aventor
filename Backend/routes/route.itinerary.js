@@ -81,6 +81,44 @@ itineraryRoute.post("/create/itinerary", async (req, res) => {
   }
 });
 
+// Add items to itinerary based on id
+itineraryRoute.post("/itinerary/:id/items", async (req, res) => {
+  const { id } = req.params;
+  const token = req.headers.authorization;
+  const body = req.body;
+
+  if (!token) {
+    return res.status(401).json({ message: "Authorization token required" });
+  }
+
+  try {
+    const response = await axios.post(
+      `${BACKEND}/api/v1/admin/itineraries/${id}/items`,
+      body,
+      {
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    res.status(200).json({
+      message: "Items added to itinerary successfully",
+      data: response.data,
+    });
+  } catch (error) {
+    console.error("Error adding items:", error.response?.data || error.message);
+    const statusCode = error.response?.status || 500;
+    const errorMessage = error.response?.data?.message || "Failed to add items";
+    
+    res.status(statusCode).json({
+      message: errorMessage,
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+});
+
 // Get all itineraries
 itineraryRoute.get("/itineraries", async (req, res) => {
   const token = req.headers.authorization;
@@ -196,7 +234,7 @@ itineraryRoute.put("/itinerary/:id", async (req, res) => {
 });
 
 // Delete itinerary
-itineraryRoute.delete("/itinerary/:id", async (req, res) => {
+itineraryRoute.delete("/itineraries/:id", async (req, res) => {
   const token = req.headers.authorization;
   const { id } = req.params;
 
@@ -205,7 +243,7 @@ itineraryRoute.delete("/itinerary/:id", async (req, res) => {
   }
 
   try {
-    const response = await axios.delete(`${BACKEND}/itineraries/${id}`, {
+    const response = await axios.delete(`${BACKEND}/api/v1/admin/itineraries/${id}`, {
       headers: {
         Authorization: token,
       },

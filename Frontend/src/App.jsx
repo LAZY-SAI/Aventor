@@ -1,6 +1,6 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider } from "./routes/Authenticator";
-import  ProtectedRoute  from "./routes/ProtectedRoute";
+import ProtectedRoute from "./routes/ProtectedRoute";
 import Land from "./section/Landing";
 import About from "./section/About";
 import Popular from "./section/Popular";
@@ -31,7 +31,8 @@ const App = () => {
     "/admin/trip",
     "/admin/notify",
     "/admin/setting",
-     "/admin/itinery",
+    "/admin/itinery",
+    "/admin/EditItinerary",
     "/plan/create",
     "/plan/set",
     "/plan/preview",
@@ -41,7 +42,6 @@ const App = () => {
     "/AiPlan/preference",
     "/AiPlan/Review",
     "/AiPlan/Final",
-   
   ];
 
   const showNavRoutes = [

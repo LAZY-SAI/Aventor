@@ -1,7 +1,9 @@
 import AdminLayout from "./adminLayout";
 import AdItineryPop from "../../components/admin/admin.itineraypop";
-import { FaPlus, FaSearch, FaFilter, FaCalendarAlt, FaClock } from "react-icons/fa";
-import { useEffect, useState, useCallback } from "react";
+import { FaPlus, FaSearch, FaClock, FaEdit, FaTrash, FaFilter } from "react-icons/fa";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import Panel from "../../components/admin/Panel";
 import { toast } from "react-toastify";
 
@@ -11,9 +13,23 @@ const AdItinery = () => {
   const [itineraries, setItineraries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("All Status");
-
+  const [activeMenuId, setActiveMenuId] = useState(null); 
+  
+  const navigate = useNavigate();
+  const menuRef = useRef(null); 
   const token = localStorage.getItem("accessToken");
   const baseUri = import.meta.env.VITE_API_URI?.replace(/\/$/, "");
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setActiveMenuId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const fetchItineraries = useCallback(async () => {
     setLoading(true);
@@ -25,16 +41,13 @@ const AdItinery = () => {
           "Content-Type": "application/json",
         },
       });
-
       if (res.ok) {
         const data = await res.json();
         setItineraries(data.data || []);
-      } else {
-        toast.error("Failed to fetch itineraries");
       }
     } catch (err) {
       console.error(err)
-      toast.error("Network error. Please try again.");
+      toast.error("Network error.");
     } finally {
       setLoading(false);
     }
@@ -44,45 +57,25 @@ const AdItinery = () => {
     if (token) fetchItineraries();
   }, [fetchItineraries, token]);
 
- 
-  const handleToggleStatus = async (id, currentIsPublic) => {
-    const nextIsPublic = !currentIsPublic;
-
-
-    setItineraries((prev) =>
-      prev.map((item) =>
-        (item._id === id || item.id === id) ? { ...item, isPublic: nextIsPublic } : item
-      )
-    );
-
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this itinerary?")) return;
     try {
-      const res = await fetch(`${baseUri}/itineraries/${id}/status`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ isPublic: nextIsPublic }),
+      const res = await fetch(`${baseUri}/itineraries/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!res.ok) throw new Error();
-      toast.success(`Itinerary is now ${nextIsPublic ? "Public" : "Private"}`);
+      if (res.ok) {
+        toast.success("Deleted successfully");
+        setItineraries(prev => prev.filter(item => (item.id || item._id) !== id));
+      }
     } catch (err) {
       console.error(err)
-      toast.error("Update failed. Reverting...");
-      setItineraries((prev) =>
-        prev.map((item) =>
-          (item._id === id || item.id === id) ? { ...item, isPublic: currentIsPublic } : item
-        )
-      );
+      toast.error("Error connecting to server");
     }
+    setActiveMenuId(null);
   };
 
-  const handleSaveSuccess = () => {
-    fetchItineraries(); // Re-fetch only when a NEW itinerary is created
-    setIsIteneraryOpen(false);
-  };
-
+  // --- FILTER LOGIC ---
   const filteredItineraries = itineraries.filter((item) => {
     const matchesSearch = item.title?.toLowerCase().includes(searchQuery.toLowerCase());
     const itemStatus = item.isPublic ? "Active" : "Draft";
@@ -90,20 +83,16 @@ const AdItinery = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const Toggle = ({ isPublic, id }) => (
+  const Toggle = ({ isPublic }) => (
     <div className="flex items-center justify-end gap-3">
-      <span className={`text-[9px] font-black uppercase tracking-widest ${isPublic ? 'text-emerald-500' : 'text-gray-600'}`}>
+      <span className={`text-[9px] font-black uppercase tracking-widest ${isPublic ? "text-emerald-500" : "text-gray-600"}`}>
         {isPublic ? "Live" : "Draft"}
       </span>
-      <label className="relative inline-flex items-center cursor-pointer">
-        <input
-          type="checkbox"
-          checked={!!isPublic}
-          onChange={() => handleToggleStatus(id, isPublic)}
-          className="sr-only peer"
-        />
-        <div className="w-10 h-5 bg-gray-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-500 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-      </label>
+      <div className="relative inline-flex items-center">
+        <div className={`w-10 h-5 rounded-full transition-colors ${isPublic ? "bg-emerald-600" : "bg-gray-800"}`}>
+           <div className={`absolute top-[2px] left-[2px] bg-white rounded-full h-4 w-4 transition-transform ${isPublic ? "translate-x-5" : "translate-x-0"}`}></div>
+        </div>
+      </div>
     </div>
   );
 
@@ -113,41 +102,44 @@ const AdItinery = () => {
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center pb-8 gap-4">
           <div>
             <h2 className="text-3xl font-black text-white tracking-tight">Itineraries</h2>
-            <p className="text-sm text-gray-500 font-medium">Manage multi-day travel experiences</p>
+            <p className="text-sm text-gray-500 font-medium">Manage travel experiences</p>
           </div>
-          <button
-            onClick={() => setIsIteneraryOpen(true)}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-2xl text-white font-bold transition-all"
-          >
+          <button onClick={() => setIsIteneraryOpen(true)} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-2xl text-white font-bold transition-all shadow-lg shadow-emerald-900/20">
             <FaPlus /> Create Itinerary
           </button>
         </header>
       }
     >
       <div className="flex flex-col gap-6">
-        {/* Search & Filter */}
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-gray-900/40 p-4 rounded-2xl border border-gray-800">
+        
+        {/* --- SEARCH & FILTER SECTION --- */}
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-gray-900/40 p-4 rounded-2xl border border-gray-800/50">
           <div className="relative w-full md:w-96">
             <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" />
             <input
               type="text"
-              placeholder="Search itineraries..."
-              className="w-full pl-12 pr-4 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-sm text-white outline-none"
+              placeholder="Search by title..."
+              className="w-full pl-12 pr-4 py-2.5 bg-gray-950/50 border border-gray-800 rounded-xl text-sm text-white outline-none focus:border-emerald-500/50 transition-colors"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <select
-            className="px-4 py-2.5 bg-gray-800 text-gray-300 rounded-xl text-sm font-semibold outline-none cursor-pointer"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="All Status">All Status</option>
-            <option value="Active">Public</option>
-            <option value="Draft">Private</option>
-          </select>
+          
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <FaFilter className="text-gray-600 text-xs hidden md:block" />
+            <select
+              className="w-full md:w-40 px-4 py-2.5 bg-gray-900 border border-gray-800 text-gray-300 rounded-xl text-sm font-semibold outline-none cursor-pointer hover:border-gray-700 transition-colors"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="All Status">All Status</option>
+              <option value="Active">Public (Live)</option>
+              <option value="Draft">Private (Draft)</option>
+            </select>
+          </div>
         </div>
 
+        {/* --- TABLE PANEL --- */}
         <Panel title="All Itineraries">
           <div className="overflow-x-auto no-scrollbar">
             {loading ? (
@@ -161,20 +153,56 @@ const AdItinery = () => {
                     <th className="px-4 py-4">Itinerary Name</th>
                     <th className="px-4 py-4">Duration</th>
                     <th className="px-4 py-4 text-right">Visibility</th>
+                    <th className="px-4 py-4 w-10"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800/50">
-                  {filteredItineraries.map((item) => (
-                    <tr key={item.id} className="group hover:bg-gray-800/30 transition-colors">
-                      <td className="px-4 py-5 font-bold text-gray-200">{item.title}</td>
-                      <td className="px-4 py-5 text-gray-400 text-xs">
-                        <FaClock className="inline mr-2"/>{item.totalDays} Days
-                      </td>
-                      <td className="px-4 py-5 text-right">
-                        <Toggle isPublic={item.isPublic ?? false} id={item.id} />
+                  {filteredItineraries.length > 0 ? (
+                    filteredItineraries.map((item) => {
+                      const itemId = item.id || item._id;
+                      return (
+                        <tr key={itemId} className="group hover:bg-gray-800/30 transition-colors">
+                          <td className="px-4 py-5 font-bold text-gray-200">{item.title}</td>
+                          <td className="px-4 py-5 text-gray-400 text-xs"><FaClock className="inline mr-2" />{item.totalDays} Days</td>
+                          <td className="px-4 py-5 text-right"><Toggle isPublic={item.isPublic ?? false} /></td>
+                          <td className="px-4 py-5 relative">
+                            <button 
+                              onClick={() => setActiveMenuId(activeMenuId === itemId ? null : itemId)}
+                              className="p-2 hover:bg-gray-700 rounded-full text-gray-400 hover:text-white transition-all"
+                            >
+                              <BsThreeDotsVertical />
+                            </button>
+
+                            {activeMenuId === itemId && (
+                              <div 
+                                ref={menuRef}
+                                className="absolute right-10 top-5 w-36 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl z-50 py-2 animate-in fade-in zoom-in duration-150"
+                              >
+                                <button 
+                                  onClick={() => navigate(`/admin/editItinerary`)}
+                                  className="w-full px-4 py-2 flex items-center gap-3 text-xs font-bold text-gray-300 hover:bg-emerald-500 hover:text-white transition-colors"
+                                >
+                                  <FaEdit /> Update
+                                </button>
+                                <button 
+                                  onClick={() => handleDelete(itemId)}
+                                  className="w-full px-4 py-2 flex items-center gap-3 text-xs font-bold text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                                >
+                                  <FaTrash /> Delete
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="px-4 py-10 text-center text-gray-600 text-sm">
+                        No itineraries found matching your criteria.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             )}
@@ -182,11 +210,7 @@ const AdItinery = () => {
         </Panel>
       </div>
 
-      <AdItineryPop 
-        isOpen={isItenararyOpen} 
-        onClose={() => setIsIteneraryOpen(false)} 
-        onSave={handleSaveSuccess} 
-      />
+      <AdItineryPop isOpen={isItenararyOpen} onClose={() => setIsIteneraryOpen(false)} onSave={fetchItineraries} />
     </AdminLayout>
   );
 };
