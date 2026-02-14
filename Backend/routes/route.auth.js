@@ -32,7 +32,7 @@ const BACKEND = process.env.BACKEND_URL
 
 authRoute.post('/auth',async(req,res)=>{
         try{
-            const response = await axios.post(`${BACKEND}/api/auth/login`, req.body)
+            const response = await axios.post(`${BACKEND}/api/v1/auth/login`, req.body)
 
             res.status(200).json(response.data)
         }

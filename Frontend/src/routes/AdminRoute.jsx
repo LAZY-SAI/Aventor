@@ -18,7 +18,7 @@ const AdminRoutes = () => {
       <Route path="setting" element={<AdSetting />} />
       <Route path="notify" element={<AdNotify />} />
       <Route path="Itinery" element={<AdItinery />} />
-      <Route path="EditItinerary" element={<ItEdit />} />
+      <Route path="editItinerary/:id/items" element={<ItEdit />} />
     </Routes>
   );
 };

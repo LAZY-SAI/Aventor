@@ -3,81 +3,61 @@ import dotenv from "dotenv";
 import axios from "axios";
 import { fileURLToPath } from "url";
 import path from "path";
-
+import multer from "multer";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const BACKEND = process.env.BACKEND_URL;
-
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+});
 const itineraryRoute = Router();
 
 // Create new itinerary
-itineraryRoute.post("/create/itinerary", async (req, res) => {
+itineraryRoute.post("/create/itinerary", upload.any(), async (req, res) => {
   const token = req.headers.authorization;
-  const body = req.body;
-
-  console.log("=== CREATE ITINERARY REQUEST ===");
-  console.log("Backend URL:", BACKEND);
-  console.log("Token:", token ? "Present" : "Missing");
-  console.log("Request Body:", JSON.stringify(body, null, 2));
-
-  // Validation
-  if (!token) {
-    return res.status(401).json({ message: "Authorization token required" });
-  }
-
-  if (!body.title || !body.totalDays) {
-    return res.status(400).json({ 
-      message: "Title and total days are required fields" 
-    });
-  }
 
   try {
+    const form = new FormData();
 
-    const payload = {
-      title: body.title,
-      description: body.description || "",
-      theme: body.theme || "",
-      totalDays: parseInt(body.totalDays),
-      startDate: body.startDate || null,
-      endDate: body.endDate || null,
-      estimatedBudget: body.estimatedBudget ? parseFloat(body.estimatedBudget) : 0,
-    };
+    // 1. Find the JSON Blob (Multer treats Blobs from frontend as files)
+    const dataPart = req.files?.find(f => f.fieldname === 'data');
+    // 2. Find the Image File
+    const filePart = req.files?.find(f => f.fieldname === 'files');
 
-    console.log("Sending payload:", JSON.stringify(payload, null, 2));
+    // Handle JSON Data
+    if (dataPart) {
+      const jsonBlob = new Blob([dataPart.buffer], { type: 'application/json' });
+      form.append("data", jsonBlob);
+    } else if (req.body.data) {
+      // Fallback if it came through as a regular body field
+      const jsonBlob = new Blob([req.body.data], { type: 'application/json' });
+      form.append("data", jsonBlob);
+    }
+
+    // Handle Image File
+    if (filePart) {
+      const imageBlob = new Blob([filePart.buffer], { type: filePart.mimetype });
+      form.append("files", imageBlob, filePart.originalname);
+    }
 
     const response = await axios.post(
-      `${BACKEND}/api/v1/admin/itineraries`,
-      payload,
+      `${BACKEND}/api/v1/admin/itineraries/with-images`,
+      form,
       {
         headers: {
           Authorization: token,
-          "Content-Type": "application/json",
+        
         },
       }
     );
 
-    console.log("✅ Success! Response:", response.status, response.data);
-
-    res.status(200).json({
-      message: "Itinerary created successfully",
-      data: response.data,
-    });
+    res.status(200).json(response.data);
   } catch (error) {
-    console.error("=== ERROR DETAILS ===");
-    console.error("Status:", error.response?.status);
-    console.error("Error Data:", error.response?.data);
-    console.error("Error Message:", error.message);
-
-    const statusCode = error.response?.status || 500;
-    const errorMessage = error.response?.data?.message || "Something went wrong";
-
-    res.status(statusCode).json({
-      message: errorMessage,
-      details: error.response?.data,
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
+    console.error("Proxy Error:", error.message);
+    res.status(error.response?.status || 500).json(error.response?.data || { message: "Internal Proxy Error" });
   }
 });
 
@@ -87,6 +67,9 @@ itineraryRoute.post("/itinerary/:id/items", async (req, res) => {
   const token = req.headers.authorization;
   const body = req.body;
 
+  console.log("=== ADD ITEMS REQUEST ===");
+  console.log("Itinerary ID:", id);
+  console.log("Payload:", JSON.stringify(body, null, 2));
   if (!token) {
     return res.status(401).json({ message: "Authorization token required" });
   }
@@ -152,7 +135,7 @@ itineraryRoute.get("/itineraries", async (req, res) => {
 });
 
 // Get single itinerary by ID
-itineraryRoute.get("/itinerary/:id", async (req, res) => {
+itineraryRoute.get("/itineraries/:id", async (req, res) => {
   const token = req.headers.authorization;
   const { id } = req.params;
 
@@ -161,12 +144,12 @@ itineraryRoute.get("/itinerary/:id", async (req, res) => {
   }
 
   try {
-    const response = await axios.get(`${BACKEND}/itineraries/${id}`, {
+    const response = await axios.get(`${BACKEND}/api/v1/itineraries/${id}`, {
       headers: {
         Authorization: token,
       },
     });
-
+  
     res.status(200).json({
       message: "Itinerary fetched successfully",
       data: response.data,
@@ -185,7 +168,7 @@ itineraryRoute.get("/itinerary/:id", async (req, res) => {
 });
 
 // Update itinerary
-itineraryRoute.put("/itinerary/:id", async (req, res) => {
+itineraryRoute.put("/itinerary/:id/items", async (req, res) => {
   const token = req.headers.authorization;
   const { id } = req.params;
   const body = req.body;

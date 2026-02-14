@@ -32,7 +32,7 @@ const App = () => {
     "/admin/notify",
     "/admin/setting",
     "/admin/itinery",
-    "/admin/EditItinerary",
+    "/admin/editItinerary",
     "/plan/create",
     "/plan/set",
     "/plan/preview",

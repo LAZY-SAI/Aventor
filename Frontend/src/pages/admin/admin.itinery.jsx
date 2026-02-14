@@ -1,6 +1,15 @@
 import AdminLayout from "./adminLayout";
 import AdItineryPop from "../../components/admin/admin.itineraypop";
-import { FaPlus, FaSearch, FaClock, FaEdit, FaTrash, FaFilter } from "react-icons/fa";
+import { 
+  FaPlus, 
+  FaSearch, 
+  FaClock, 
+  FaEdit, 
+  FaTrash, 
+  FaFilter, 
+  FaImage,
+  FaGlobeAmericas
+} from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +40,10 @@ const AdItinery = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleEditClick = (id) => {
+    navigate(`/admin/editItinerary/${id}/items`);
+  };
+
   const fetchItineraries = useCallback(async () => {
     setLoading(true);
     try {
@@ -43,10 +56,11 @@ const AdItinery = () => {
       });
       if (res.ok) {
         const data = await res.json();
+        
         setItineraries(data.data || []);
       }
     } catch (err) {
-      console.error(err)
+      console.error(err);
       toast.error("Network error.");
     } finally {
       setLoading(false);
@@ -69,13 +83,12 @@ const AdItinery = () => {
         setItineraries(prev => prev.filter(item => (item.id || item._id) !== id));
       }
     } catch (err) {
-      console.error(err)
+      console.error(err);
       toast.error("Error connecting to server");
     }
     setActiveMenuId(null);
   };
 
-  // --- FILTER LOGIC ---
   const filteredItineraries = itineraries.filter((item) => {
     const matchesSearch = item.title?.toLowerCase().includes(searchQuery.toLowerCase());
     const itemStatus = item.isPublic ? "Active" : "Draft";
@@ -90,7 +103,7 @@ const AdItinery = () => {
       </span>
       <div className="relative inline-flex items-center">
         <div className={`w-10 h-5 rounded-full transition-colors ${isPublic ? "bg-emerald-600" : "bg-gray-800"}`}>
-           <div className={`absolute top-[2px] left-[2px] bg-white rounded-full h-4 w-4 transition-transform ${isPublic ? "translate-x-5" : "translate-x-0"}`}></div>
+          <div className={`absolute top-[2px] left-[2px] bg-white rounded-full h-4 w-4 transition-transform ${isPublic ? "translate-x-5" : "translate-x-0"}`}></div>
         </div>
       </div>
     </div>
@@ -102,9 +115,12 @@ const AdItinery = () => {
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center pb-8 gap-4">
           <div>
             <h2 className="text-3xl font-black text-white tracking-tight">Itineraries</h2>
-            <p className="text-sm text-gray-500 font-medium">Manage travel experiences</p>
+            <p className="text-sm text-gray-500 font-medium">Manage curated travel experiences</p>
           </div>
-          <button onClick={() => setIsIteneraryOpen(true)} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-2xl text-white font-bold transition-all shadow-lg shadow-emerald-900/20">
+          <button 
+            onClick={() => setIsIteneraryOpen(true)} 
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-2xl text-white font-bold transition-all shadow-lg shadow-emerald-900/20 active:scale-95"
+          >
             <FaPlus /> Create Itinerary
           </button>
         </header>
@@ -150,6 +166,7 @@ const AdItinery = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-gray-800 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black">
+                    <th className="px-4 py-4 w-20">Hero</th>
                     <th className="px-4 py-4">Itinerary Name</th>
                     <th className="px-4 py-4">Duration</th>
                     <th className="px-4 py-4 text-right">Visibility</th>
@@ -162,9 +179,41 @@ const AdItinery = () => {
                       const itemId = item.id || item._id;
                       return (
                         <tr key={itemId} className="group hover:bg-gray-800/30 transition-colors">
-                          <td className="px-4 py-5 font-bold text-gray-200">{item.title}</td>
-                          <td className="px-4 py-5 text-gray-400 text-xs"><FaClock className="inline mr-2" />{item.totalDays} Days</td>
-                          <td className="px-4 py-5 text-right"><Toggle isPublic={item.isPublic ?? false} /></td>
+                          {/* Image Preview */}
+                          <td className="px-4 py-5">
+                            <div className="w-14 h-10 rounded-lg overflow-hidden bg-gray-900 border border-gray-800 flex items-center justify-center relative">
+                              {item.images ? (
+                                <img 
+                                  src={item.images} 
+                                  alt="" 
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                              ) : (
+                                <FaImage className="text-gray-700 text-lg" />
+                              )}
+                            </div>
+                          </td>
+
+                          <td className="px-4 py-5">
+                            <div className="flex flex-col">
+                              <span className="font-bold text-gray-200">{item.title}</span>
+                              <span className="text-[10px] text-gray-500 uppercase tracking-tighter flex items-center gap-1">
+                                <FaGlobeAmericas size={8}/> {item.theme || "No Theme"}
+                              </span>
+                            </div>
+                          </td>
+
+                          <td className="px-4 py-5">
+                            <div className="flex items-center gap-2 bg-gray-950/50 w-fit px-3 py-1 rounded-full border border-gray-800/50 text-gray-400 text-xs">
+                              <FaClock className="text-emerald-500" size={10} />
+                              {item.totalDays} Days
+                            </div>
+                          </td>
+
+                          <td className="px-4 py-5 text-right">
+                            <Toggle isPublic={item.isPublic ?? false} />
+                          </td>
+
                           <td className="px-4 py-5 relative">
                             <button 
                               onClick={() => setActiveMenuId(activeMenuId === itemId ? null : itemId)}
@@ -176,10 +225,10 @@ const AdItinery = () => {
                             {activeMenuId === itemId && (
                               <div 
                                 ref={menuRef}
-                                className="absolute right-10 top-5 w-36 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl z-50 py-2 animate-in fade-in zoom-in duration-150"
+                                className="absolute right-10 top-5 w-36 bg-gray-950 border border-gray-800 rounded-xl shadow-2xl z-50 py-2 animate-in fade-in zoom-in duration-150"
                               >
                                 <button 
-                                  onClick={() => navigate(`/admin/editItinerary`)}
+                                  onClick={() => handleEditClick(itemId)}
                                   className="w-full px-4 py-2 flex items-center gap-3 text-xs font-bold text-gray-300 hover:bg-emerald-500 hover:text-white transition-colors"
                                 >
                                   <FaEdit /> Update
@@ -198,8 +247,8 @@ const AdItinery = () => {
                     })
                   ) : (
                     <tr>
-                      <td colSpan="4" className="px-4 py-10 text-center text-gray-600 text-sm">
-                        No itineraries found matching your criteria.
+                      <td colSpan="5" className="px-4 py-12 text-center text-gray-600 text-sm italic">
+                        No itineraries discovered. Create your first expedition.
                       </td>
                     </tr>
                   )}
@@ -210,7 +259,11 @@ const AdItinery = () => {
         </Panel>
       </div>
 
-      <AdItineryPop isOpen={isItenararyOpen} onClose={() => setIsIteneraryOpen(false)} onSave={fetchItineraries} />
+      <AdItineryPop 
+        isOpen={isItenararyOpen} 
+        onClose={() => setIsIteneraryOpen(false)} 
+        onSave={fetchItineraries} 
+      />
     </AdminLayout>
   );
 };
