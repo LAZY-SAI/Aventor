@@ -2,9 +2,6 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider } from "./routes/Authenticator";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Land from "./section/Landing";
-import About from "./section/About";
-import Popular from "./section/Popular";
-import Feature from "./section/Feature";
 import Signup from "./pages/user/signup/Signup";
 import Footer from "./section/Footer";
 import Userdash from "./pages/user/UserDash";
@@ -65,9 +62,6 @@ const App = () => {
             element={
               <>
                 <Land />
-                <About />
-                <Popular />
-                <Feature />
               </>
             }
           />

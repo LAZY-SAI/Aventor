@@ -18,6 +18,17 @@
   --animate-orbit: orbit 50s linear infinite;
 }
 
+
+
+.text-heading {
+  @apply text-5xl md:text-7xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: #030412;
   font-family: "Funnel Display", sans-serif;

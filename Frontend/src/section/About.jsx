@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { Float, Shadow } from "@react-three/drei";
 import { Backpack } from "../components/Backpack";
 import { Boots } from "../components/Boots";
 import { Button } from "../components/Button";
-import { easing } from "maath";
+import {Reveal} from "../components/Reveal"
+import {Rig} from '../components/Rig'
 import Globe from "../components/Globe";
 
 const About = () => {
@@ -15,11 +16,13 @@ const About = () => {
   
   return (
       <section className="c-space section-spacing">
-      <h2 className="text-heading">About Us</h2>
+     <Reveal>
+       <h2 className="text-heading">About Us</h2>
+     </Reveal>
 
-      <div className="grid grid-cols-1 max-w-7xl gap-4 md:grid-cols-6 md:auto-rows-[18rem] mt-12 ">
+      <div className="grid grid-cols-1  gap-4 md:grid-cols-6 md:auto-rows-[18rem] mt-12 ">
         {/* Grid 1 */}
-        <div className="flex items-end grid-default-color grid-1">
+        <div className="flex items-end grid-default-color grid-1 ">
           <figure className="absolute items-center left-30 -top-13  ">
             <Globe />
           </figure>
@@ -78,19 +81,15 @@ const About = () => {
               <directionalLight position={[15, 15, 10]} intensity={10} />
 
               {/* Boots */}
-              <group position={[-7.5, 0.6, 5]}>
+              <group position={[-7.7, 0.3, 4]}>
                 <Boots />
-                <Shadow position={[-0.1, 0, 1]} scale={[5, 3, 1]} opacity={1} />
+               
               </group>
 
               {/* Backpack */}
-              <group position={[8.2, 1.8, 8.1]}>
+              <group position={[9.2,-0.4, 8]}>
                 <Backpack />
-                <Shadow
-                  position={[-2.2, -0.8, 0]}
-                  scale={[3, 2, 0]}
-                  opacity={0.8}
-                />
+              
               </group>
 
               <Rig />
@@ -116,17 +115,6 @@ const About = () => {
   );
 };
 
-function Rig() {
-  return useFrame((state, delta) => {
-    
-    const targetPos = [
-      state.mouse.x * 1.3, // Subtle horizontal sway
-      4 + state.mouse.y * 1, // Subtle vertical tilt
-      12, 
-    ];
-    easing.damp3(state.camera.position, targetPos, 0.25, delta);
-    state.camera.lookAt(0, 0, 0); 
-  });
-}
+
 
 export default About;

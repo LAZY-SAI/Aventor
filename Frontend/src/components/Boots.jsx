@@ -6,7 +6,7 @@ export function Boots(props) {
   return (
     <group {...props} dispose={null}>
       <group scale={0.03}>
-        <group position={[-10.628, 0, 23.189]} rotation={[-Math.PI / 1.7, 0.4, 0.3]} scale={80}>
+        <group position={[-10.628, 0, 23.189]} rotation={[-Math.PI / 1.7, 0.2, 0.3]} scale={80}>
           <mesh
             castShadow
             receiveShadow
