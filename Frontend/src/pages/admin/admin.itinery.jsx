@@ -56,7 +56,6 @@ const AdItinery = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        
         setItineraries(data.data || []);
       }
     } catch (err) {
@@ -102,8 +101,8 @@ const AdItinery = () => {
         {isPublic ? "Live" : "Draft"}
       </span>
       <div className="relative inline-flex items-center">
-        <div className={`w-10 h-5 rounded-full transition-colors ${isPublic ? "bg-emerald-600" : "bg-gray-800"}`}>
-          <div className={`absolute top-[2px] left-[2px] bg-white rounded-full h-4 w-4 transition-transform ${isPublic ? "translate-x-5" : "translate-x-0"}`}></div>
+        <div className={`w-10 h-5 rounded-full transition-colors ${isPublic ? "bg-emerald-600/20 border border-emerald-500/30" : "bg-gray-800 border border-gray-700"}`}>
+          <div className={`absolute top-[2px] left-[2px] rounded-full h-4 w-4 transition-transform ${isPublic ? "translate-x-5 bg-emerald-500" : "translate-x-0 bg-gray-500"}`}></div>
         </div>
       </div>
     </div>
@@ -114,110 +113,121 @@ const AdItinery = () => {
       header={
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center pb-8 gap-4">
           <div>
-            <h2 className="text-3xl font-black text-white tracking-tight">Itineraries</h2>
-            <p className="text-sm text-gray-500 font-medium">Manage curated travel experiences</p>
+            <h2 className="text-4xl font-black text-white tracking-tighter">Itineraries</h2>
+            <p className="text-sm text-gray-500 font-medium">Curate and deploy world-class trekking experiences</p>
           </div>
           <button 
             onClick={() => setIsIteneraryOpen(true)} 
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-2xl text-white font-bold transition-all shadow-lg shadow-emerald-900/20 active:scale-95"
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-8 py-4 rounded-2xl text-white font-bold transition-all shadow-lg shadow-emerald-900/20 active:scale-95 text-sm"
           >
-            <FaPlus /> Create Itinerary
+            <FaPlus /> Create New Expedition
           </button>
         </header>
       }
     >
       <div className="flex flex-col gap-6">
         
-        {/* --- SEARCH & FILTER SECTION --- */}
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-gray-900/40 p-4 rounded-2xl border border-gray-800/50">
-          <div className="relative w-full md:w-96">
-            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" />
+        {/* --- SEARCH & FILTER --- */}
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-[#0b171f]/50 p-5 rounded-3xl border border-white/5 backdrop-blur-sm">
+          <div className="relative w-full md:w-[450px]">
+            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
             <input
               type="text"
-              placeholder="Search by title..."
-              className="w-full pl-12 pr-4 py-2.5 bg-gray-950/50 border border-gray-800 rounded-xl text-sm text-white outline-none focus:border-emerald-500/50 transition-colors"
+              placeholder="Search by itinerary name..."
+              className="w-full pl-12 pr-4 py-3 bg-[#050f14] border border-gray-800 rounded-2xl text-sm text-white outline-none focus:border-emerald-500/50 transition-all placeholder:text-gray-700"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           
           <div className="flex items-center gap-3 w-full md:w-auto">
-            <FaFilter className="text-gray-600 text-xs hidden md:block" />
-            <select
-              className="w-full md:w-40 px-4 py-2.5 bg-gray-900 border border-gray-800 text-gray-300 rounded-xl text-sm font-semibold outline-none cursor-pointer hover:border-gray-700 transition-colors"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="All Status">All Status</option>
-              <option value="Active">Public (Live)</option>
-              <option value="Draft">Private (Draft)</option>
-            </select>
+            <div className="flex items-center bg-[#050f14] border border-gray-800 rounded-2xl px-4 py-1">
+              <FaFilter className="text-gray-600 text-[10px] mr-3" />
+              <select
+                className="bg-transparent py-2.5 text-gray-300 rounded-xl text-xs font-bold outline-none cursor-pointer"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="All Status">ALL STATUSES</option>
+                <option value="Active">PUBLIC / LIVE</option>
+                <option value="Draft">PRIVATE / DRAFT</option>
+              </select>
+            </div>
           </div>
         </div>
 
         {/* --- TABLE PANEL --- */}
-        <Panel title="All Itineraries">
+        <Panel title="Expedition Registry">
           <div className="overflow-x-auto no-scrollbar">
             {loading ? (
               <div className="h-64 flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : (
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-gray-800 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black">
-                    <th className="px-4 py-4 w-20">Hero</th>
-                    <th className="px-4 py-4">Itinerary Name</th>
-                    <th className="px-4 py-4">Duration</th>
-                    <th className="px-4 py-4 text-right">Visibility</th>
-                    <th className="px-4 py-4 w-10"></th>
+                  <tr className="border-b border-white/5 text-[10px] uppercase tracking-[0.2em] text-gray-500 font-black">
+                    <th className="px-6 py-5 w-32">Hero</th>
+                    <th className="px-6 py-5">Expedition Details</th>
+                    <th className="px-6 py-5">Duration</th>
+                    <th className="px-6 py-5 text-right">Deployment</th>
+                    <th className="px-6 py-5 w-16"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-800/50">
+                <tbody className="divide-y divide-white/5">
                   {filteredItineraries.length > 0 ? (
                     filteredItineraries.map((item) => {
                       const itemId = item.id || item._id;
                       return (
-                        <tr key={itemId} className="group hover:bg-gray-800/30 transition-colors">
-                          {/* Image Preview */}
-                          <td className="px-4 py-5">
-                            <div className="w-14 h-10 rounded-lg overflow-hidden bg-gray-900 border border-gray-800 flex items-center justify-center relative">
+                        <tr key={itemId} className="group hover:bg-white/[0.02] transition-colors">
+                          
+                          {/* --- ENHANCED HERO SECTION --- */}
+                          <td className="px-6 py-6">
+                            <div className="w-24 h-16 rounded-2xl overflow-hidden bg-gray-950 border border-white/10 flex items-center justify-center relative shadow-2xl group-hover:border-emerald-500/50 transition-all duration-500">
                               {item.images ? (
-                                <img 
-                                  src={item.images} 
-                                  alt="" 
-                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                />
+                                <>
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                  <img 
+                                    src={item.images} 
+                                    alt="" 
+                                    className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-1000 ease-out"
+                                  />
+                                </>
                               ) : (
-                                <FaImage className="text-gray-700 text-lg" />
+                                <div className="flex flex-col items-center gap-1 opacity-20">
+                                  <FaImage className="text-white text-xl" />
+                                  <span className="text-[8px] font-bold">NO MEDIA</span>
+                                </div>
                               )}
                             </div>
                           </td>
 
-                          <td className="px-4 py-5">
-                            <div className="flex flex-col">
-                              <span className="font-bold text-gray-200">{item.title}</span>
-                              <span className="text-[10px] text-gray-500 uppercase tracking-tighter flex items-center gap-1">
-                                <FaGlobeAmericas size={8}/> {item.theme || "No Theme"}
+                          <td className="px-6 py-6">
+                            <div className="flex flex-col gap-1">
+                              <span className="font-bold text-gray-100 text-lg tracking-tight group-hover:text-emerald-400 transition-colors">
+                                {item.title}
+                              </span>
+                              <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest flex items-center gap-2">
+                                <FaGlobeAmericas className="text-emerald-600" size={10}/> {item.theme || "GENERAL EXPEDITION"}
                               </span>
                             </div>
                           </td>
 
-                          <td className="px-4 py-5">
-                            <div className="flex items-center gap-2 bg-gray-950/50 w-fit px-3 py-1 rounded-full border border-gray-800/50 text-gray-400 text-xs">
-                              <FaClock className="text-emerald-500" size={10} />
+                          <td className="px-6 py-6">
+                            <div className="flex items-center gap-2 bg-white/5 w-fit px-4 py-1.5 rounded-xl border border-white/5 text-gray-300 text-xs font-bold">
+                              <FaClock className="text-emerald-500" size={12} />
                               {item.totalDays} Days
                             </div>
                           </td>
 
-                          <td className="px-4 py-5 text-right">
+                          <td className="px-6 py-6 text-right">
                             <Toggle isPublic={item.isPublic ?? false} />
                           </td>
 
-                          <td className="px-4 py-5 relative">
+                          <td className="px-6 py-6 relative">
                             <button 
                               onClick={() => setActiveMenuId(activeMenuId === itemId ? null : itemId)}
-                              className="p-2 hover:bg-gray-700 rounded-full text-gray-400 hover:text-white transition-all"
+                              className="p-3 hover:bg-white/10 rounded-2xl text-gray-500 hover:text-white transition-all"
                             >
                               <BsThreeDotsVertical />
                             </button>
@@ -225,19 +235,20 @@ const AdItinery = () => {
                             {activeMenuId === itemId && (
                               <div 
                                 ref={menuRef}
-                                className="absolute right-10 top-5 w-36 bg-gray-950 border border-gray-800 rounded-xl shadow-2xl z-50 py-2 animate-in fade-in zoom-in duration-150"
+                                className="absolute right-12 top-10 w-44 bg-[#0b171f] border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 py-2 backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-200"
                               >
                                 <button 
                                   onClick={() => handleEditClick(itemId)}
-                                  className="w-full px-4 py-2 flex items-center gap-3 text-xs font-bold text-gray-300 hover:bg-emerald-500 hover:text-white transition-colors"
+                                  className="w-full px-5 py-3 flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-gray-400 hover:bg-emerald-500 hover:text-white transition-colors"
                                 >
-                                  <FaEdit /> Update
+                                  <FaEdit /> Edit Registry
                                 </button>
+                                <div className="h-px bg-white/5 mx-2 my-1" />
                                 <button 
                                   onClick={() => handleDelete(itemId)}
-                                  className="w-full px-4 py-2 flex items-center gap-3 text-xs font-bold text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                                  className="w-full px-5 py-3 flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-colors"
                                 >
-                                  <FaTrash /> Delete
+                                  <FaTrash /> Purge Entry
                                 </button>
                               </div>
                             )}
@@ -247,8 +258,11 @@ const AdItinery = () => {
                     })
                   ) : (
                     <tr>
-                      <td colSpan="5" className="px-4 py-12 text-center text-gray-600 text-sm italic">
-                        No itineraries discovered. Create your first expedition.
+                      <td colSpan="5" className="px-6 py-20 text-center">
+                        <div className="flex flex-col items-center gap-3 opacity-20">
+                          <FaGlobeAmericas size={40} />
+                          <p className="text-sm font-bold uppercase tracking-widest">No Itineraries Logged</p>
+                        </div>
                       </td>
                     </tr>
                   )}

@@ -9,6 +9,7 @@ import {
   FaImage,
   FaClock,
   FaTag,
+  FaTrash,
   FaMapMarkerAlt,
 } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
@@ -18,254 +19,178 @@ const ItEdit = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  // State for itinerary data
+  // 1. Unified State for General Info and Day Items
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     totalDays: 1,
     estimatedCost: 0,
-    destination: "",
     category: "Adventure",
-    images: null,
+    coverImage: null,
   });
+
+  const [itineraryItems, setItineraryItems] = useState([]);
+
   const baseUri = import.meta.env.VITE_API_URI?.replace(/\/$/, "");
-  const inputClass =
-    "w-full p-4 bg-gray-950/50 text-white rounded-2xl border border-gray-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 outline-none transition-all";
-  const labelClass =
-    "text-[10px] font-black uppercase text-gray-500 mb-2 ml-1 tracking-widest block";
   const token = localStorage.getItem("accessToken");
-  useEffect(() => {
-  const fetchItinerary = async () => {
-    try {
-      setLoading(true);
-    
-      const res = await fetch(`${baseUri}/itineraries/${id}`, {
-        method: "GET",
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
+  const inputClass = "w-full p-4 bg-gray-950/50 text-white rounded-2xl border border-gray-800 focus:border-emerald-500 outline-none transition-all";
+  const labelClass = "text-[10px] font-black uppercase text-gray-500 mb-2 ml-1 tracking-widest block";
 
-      if (!res.ok) throw new Error("Failed to fetch itinerary");
-    
-      const result = await res.json();
-      const data = result.data; 
-      console.log(data)
-     
-      setFormData({
-        title: data.title || "",
-        description: data.description || "",
-        totalDays: data.totalDays || 1,
-        price: data.estimatedCost8 || 0,
-        destination: data.destination || "",
-        category: data.category || "Adventure",
-        coverImage: data.images || null
-      });
-    } catch (err) {
-      console.error(err);
-      toast.error("Could not load expedition data.");
-    } finally {
-      setLoading(false);
-    }
+  // 2. Add a new Day Component
+  const addNewDay = () => {
+    const nextDay = itineraryItems.length + 1;
+    const newItem = {
+      dayNumber: nextDay,
+      title: "",
+      activityType: "",
+      notes: "",
+      startTime: "08:00",
+      endTime: "10:00",
+    };
+    setItineraryItems([...itineraryItems, newItem]);
+    setFormData(prev => ({ ...prev, totalDays: nextDay }));
   };
 
-  if (id && token) {
-    fetchItinerary();
-  }
-}, [id, baseUri, token]);
-
-  const handleChange = (e) => {
+  // 3. Handle Item Changes
+  const handleItemChange = (index, e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const updatedItems = [...itineraryItems];
+    updatedItems[index][name] = value;
+    setItineraryItems(updatedItems);
   };
 
-  const handleUpdate = (e) => {
-    e.preventDefault();
-    toast.success("Itinerary updated successfully!");
-   
+  // 4. Remove a Day
+  const removeDay = (index) => {
+    const updatedItems = itineraryItems.filter((_, i) => i !== index)
+      .map((item, i) => ({ ...item, dayNumber: i + 1 })); // Re-index days
+    setItineraryItems(updatedItems);
+    setFormData(prev => ({ ...prev, totalDays: updatedItems.length }));
   };
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="h-screen flex flex-col items-center justify-center">
-          <div className="w-12 h-12 border-4 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin"></div>
-          <p className="mt-4 text-xs font-black uppercase tracking-widest text-gray-500">
-            Loading Expedition Data...
-          </p>
-        </div>
-      </AdminLayout>
-    );
-  }
+  useEffect(() => {
+    const fetchItinerary = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${baseUri}/itineraries/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const result = await res.json();
+        const data = result.data;
+
+        setFormData({
+          title: data.title || "",
+          description: data.description || "",
+          totalDays: data.totalDays || 1,
+          estimatedCost: data.estimatedCost || 0,
+          category: data.category || "Adventure",
+          coverImage: data.images || null
+        });
+
+        // If the API returns existing items, load them here
+        setItineraryItems(data.itineraryItems || []);
+      } catch (err) {
+        console.log(err)
+        toast.error("Could not load expedition data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id && token) fetchItinerary();
+  }, [id, baseUri, token]);
 
   return (
     <AdminLayout
       header={
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center pb-8 gap-4">
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-3 bg-gray-900 hover:bg-gray-800 rounded-xl text-gray-400 hover:text-white transition-all"
-            >
-              <FaArrowLeft />
-            </button>
+            <button onClick={() => navigate(-1)} className="p-3 bg-gray-900 rounded-xl text-gray-400 hover:text-white"><FaArrowLeft /></button>
             <div>
-              <h2 className="text-3xl font-black text-white tracking-tight">
-                Edit Itinerary
-              </h2>
-              <p className="text-sm text-gray-500 font-medium font-mono uppercase tracking-tighter">
-                ID: {id}
-              </p>
+              <h2 className="text-3xl font-black text-white tracking-tight">Edit Itinerary</h2>
+              <p className="text-sm text-gray-500 font-mono">ID: {id}</p>
             </div>
           </div>
-          <div className="flex gap-3">
-            <button className="px-6 py-3 rounded-2xl text-gray-400 font-bold hover:bg-gray-900 transition-all">
-              Discard
-            </button>
-            <button
-              onClick={handleUpdate}
-              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-8 py-3 rounded-2xl text-white font-bold shadow-xl shadow-emerald-900/20 active:scale-95 transition-all"
-            >
-              <FaSave /> Update Expedition
-            </button>
-          </div>
+          <button onClick={() => toast.info("Saving Data...")} className="flex items-center gap-2 bg-emerald-600 px-8 py-3 rounded-2xl text-white font-bold"><FaSave /> Update Expedition</button>
         </header>
       }
     >
       <ToastContainer theme="dark" position="bottom-right" />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-20">
-        {/* Main Editor Section */}
         <div className="lg:col-span-8 space-y-8">
+          
           <Panel title="General Information">
-            <div className="space-y-6 mt-4">
-              <div>
-                <label className={labelClass}>Itinerary Title</label>
-                <input
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="Enter a captivating name..."
-                />
-              </div>
-
-              <div>
-                <label className={labelClass}>Overview Description</label>
-                <textarea
-                  name="description"
-                  rows={6}
-                  value={formData.description}
-                  onChange={handleChange}
-                  className={`${inputClass} resize-none`}
-                  placeholder="Describe the journey experience..."
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* <div>
-                  <label className={labelClass}>Primary Destination</label>
-                  <div className="relative">
-                    <FaMapMarkerAlt className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500" />
-                    <input
-                      name="destination"
-                      value={formData.destination}
-                      onChange={handleChange}
-                      className={`${inputClass} pl-12`}
-                    />
-                  </div>
-                </div> */}
+         
+             <div className="space-y-6 mt-4">
                 <div>
-                  <label className={labelClass}>Experience Category</label>
-                  <div className="relative">
-                    <FaTag className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500" />
-                    <input
-                      name="category"
-                      value={formData.category}
-                      onChange={handleChange}
-                      className={`${inputClass} pl-12`}
-                    />
-                  </div>
+                  <label className={labelClass}>Itinerary Title</label>
+                  <input name="title" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className={inputClass} />
                 </div>
-              </div>
-            </div>
+             </div>
           </Panel>
 
-          <Panel title="Detailed Itinerary Content">
-            <div className="p-8 border-2 border-dashed border-gray-800 rounded-3xl flex flex-col items-center justify-center text-center group hover:border-emerald-500/50 transition-all cursor-pointer">
+          {/* DYNAMIC DAY COMPONENTS */}
+          <div className="space-y-6">
+            <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2">
+              <span className="w-8 h-px bg-emerald-500"></span> Timeline Breakdown
+            </h3>
+            
+            {itineraryItems.map((item, index) => (
+              <Panel key={index} title={`Day ${item.dayNumber}: activity details`}>
+                
+                <div className=" w-full mx-auto flex flex-row-reverse z-10 ">
+                  <button onClick={() => removeDay(index)} className="text-red-500 hover:text-red-400 p-2"><FaTrash size={12}/></button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div className="md:col-span-2">
+                    <label className={labelClass}>Activity / Destination</label>
+                    <input 
+                      name="title" 
+                      value={item.title} 
+                      onChange={(e) => handleItemChange(index, e)} 
+                      className={inputClass} 
+                      placeholder="e.g. Arrive at Base Camp" 
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Start Time</label>
+                    <input type="time" name="startTime" value={item.startTime} onChange={(e) => handleItemChange(index, e)} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Activity Type</label>
+                    <input name="activityType" value={item.activityType} onChange={(e) => handleItemChange(index, e)} className={inputClass} placeholder="Trek / Rest" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className={labelClass}>Logistics Notes</label>
+                    <textarea name="notes" value={item.notes} onChange={(e) => handleItemChange(index, e)} className={`${inputClass} h-24 resize-none`} placeholder="Specific instructions for this day..." />
+                  </div>
+                </div>
+              </Panel>
+            ))}
+
+            {/* ADD DAY BUTTON */}
+            <div 
+              onClick={addNewDay}
+              className="p-8 border-2 border-dashed border-gray-800 rounded-3xl flex flex-col items-center justify-center text-center group hover:border-emerald-500/50 transition-all cursor-pointer bg-gray-900/10"
+            >
               <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center text-gray-500 group-hover:text-emerald-500 mb-4 transition-all">
                 <FaPlus size={20} />
               </div>
-              <h4 className="text-white font-bold mb-1">Add Day Component</h4>
-              <p className="text-gray-600 text-xs">
-                Manage timeline events, meals, and accommodations.
-              </p>
+              <h4 className="text-white font-bold mb-1">Add Another Day</h4>
+              <p className="text-gray-600 text-xs">Append a new segment to this expedition's timeline.</p>
             </div>
-          </Panel>
+          </div>
         </div>
 
         {/* Sidebar Controls */}
         <div className="lg:col-span-4 space-y-8">
-          <Panel title="Banner Assets">
-            <div className="mt-4 space-y-4">
-              <div className="aspect-video rounded-2xl bg-gray-900 overflow-hidden border border-gray-800 relative group">
-                <img
-                  src={formData.coverImage}
-                  alt="Cover"
-                  className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <button className="bg-white/10 backdrop-blur-md p-3 rounded-xl text-white border border-white/20 hover:bg-emerald-500 transition-all">
-                    <FaImage />
-                  </button>
-                </div>
-              </div>
-              <p className="text-[10px] text-gray-600 font-bold uppercase text-center tracking-widest italic px-4">
-                Recommended size: 1920x1080 (JPG/PNG)
-              </p>
+         
+           <Panel title="Expedition Metrics">
+            <div className="flex items-center justify-between p-4 bg-gray-950/50 rounded-2xl border border-gray-800">
+               <span className="text-xs font-bold text-gray-400">Total Calculated Days</span>
+               <span className="text-white font-black">{itineraryItems.length}</span>
             </div>
-          </Panel>
-
-          <Panel title="Expedition Metrics">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 bg-gray-950/50 rounded-2xl border border-gray-800">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-lg">
-                    <FaClock />
-                  </div>
-                  <span className="text-xs font-bold text-gray-400">
-                    Duration
-                  </span>
-                </div>
-                <input
-                  type="number"
-                  name="totalDays"
-                  value={formData.totalDays}
-                  onChange={handleChange}
-                  className="bg-transparent text-right text-white font-black w-16 outline-none"
-                />
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-gray-950/50 rounded-2xl border border-gray-800">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-lg">
-                    <FaTag />
-                  </div>
-                  <span className="text-xs font-bold text-gray-400">
-                    Estimated Cost ($)
-                  </span>
-                </div>
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.estimatedCost}
-                  onChange={handleChange}
-                  className="bg-transparent text-right text-white font-black w-24 outline-none"
-                />
-              </div>
-            </div>
-          </Panel>
+           </Panel>
         </div>
       </div>
     </AdminLayout>

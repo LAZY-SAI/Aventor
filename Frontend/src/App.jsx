@@ -29,7 +29,7 @@ const App = () => {
     "/admin/notify",
     "/admin/setting",
     "/admin/itinery",
-    "/admin/editItinerary",
+    "/admin/editItinerary/:id/items",
     "/plan/create",
     "/plan/set",
     "/plan/preview",
@@ -120,9 +120,8 @@ const App = () => {
             }
           />
 
-          {/*Loader*/}
-          {/*<Route path={"loading"} element={<Loading/>}/>*/}
-          {/* Admin routes with wildcard - all admin routes handled by AdminRoutes */}
+        
+
           <Route
             path="/admin/*"
             element={
