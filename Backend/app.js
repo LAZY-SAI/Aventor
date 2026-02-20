@@ -5,12 +5,13 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import path from "path";
-import useRoute from "./routes/route.user.js";
+import userRoute from "./routes/route.user.js";
 import destRoute from "./routes/route.destination.js";
 import adminRoute from "./routes/route.admin.js";
 import authRoute from "./routes/route.auth.js"
 import imgRoute from "./routes/route.image.js";
 import itineraryRoute from "./routes/route.itinerary.js"
+import adUser from './routes/route.aduser.js'
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 const app = express();
@@ -42,9 +43,10 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use("/", useRoute);
+app.use("/", userRoute);
 app.use("/", destRoute);
 app.use("/", adminRoute);
+app.use("/",adUser);
 app.use("/",imgRoute);
 app.use("/", authRoute);
 app.use("/", itineraryRoute)

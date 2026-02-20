@@ -16,15 +16,16 @@ const Panel = ({ title, children, className = "", actionText = "View log" }) => 
 
 const AdminDash = () => {
   const [users, setUsers] = useState({ activeUsers: 0, pendingFlags: 0 });
+  const [destination, setDestination] = useState({destinationCount:0})
+  const [post, setPost] = useState({postCount:0})
   const [isLoading, setIsLoading] = useState(true);
 
   const metrics = [
     { id: 1, name: "Active Users", value: users.activeUsers ?? "0", trend: "0%", color: "text-emerald-400" },
-    { id: 2, name: "Trips Created", value: "124", trend: "+3.5%", color: "text-blue-400" },
-    { id: 3, name: "Bookings", value: "89", trend: "-1.9%", color: "text-rose-400" },
-    { id: 4, name: "Reports", value: "12", trend: "-0.4%", color: "text-amber-400" },
-    { id: 5, name: "System Quota", value: "82%", trend: "Stable", color: "text-purple-400" },
-    { id: 6, name: "Pending Flags", value: users.pendingFlags ?? "0", trend: "High", color: "text-orange-400" },
+    { id: 2, name: "Trips Created", value: destination.destinationCount ?? "0", trend: "+3.5%", color: "text-blue-400" },
+    { id: 3, name: "Posts", value: post.postCount ?? "0", trend: "-1.9%", color: "text-rose-400" },
+    { id: 4, name: "Reports", value: "0", trend: "-0.4%", color: "text-amber-400" },
+    { id: 5, name: "Pending Flags", value: users.pendingFlags ?? "0", trend: "High", color: "text-orange-400" },
   ];
 
   const recentChanges = [
@@ -47,6 +48,8 @@ const AdminDash = () => {
         });
         const data = await res.json();
         setUsers(data);
+        setDestination(data)
+        setPost(data)
       } catch (err) {
         console.error("Failed to fetch users", err);
       } finally {

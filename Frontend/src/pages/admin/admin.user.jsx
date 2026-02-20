@@ -5,17 +5,19 @@ import UserPop from '../../components/admin/admin.userpop';
 
 const AdUser = () => {
   const [users, setUsers] = useState([]);
+  const [totalUsers, setTotalUsers] = useState({totalUsers:0})
+  const [newUsers, setNewUsers] = useState({newUsersLast7Days:0})
   const [loading, setLoading] = useState(true);
   const [isPopOpen, setIsPopOpen] = useState(false);
 
 
   const activity = [
-    { id: 1, name: "Total Users", numbers: "18,240", percent: "+8.2%", color: "text-emerald-400" },
-    { id: 2, name: "New Users", numbers: "4,120", percent: "+3.5%", color: "text-blue-400" },
-    { id: 3, name: "Activity Index", numbers: "2,843", percent: "-1.9%", color: "text-amber-400" },
-    { id: 4, name: "Blocked Accounts", numbers: "134", percent: "-0.4%", color: "text-rose-400" },
+    { id: 1, name: "Total Users", value:totalUsers.totalUsers ?? "0", percent: "+8.2%", color: "text-emerald-400" },
+    { id: 2, name: "New Users", value: newUsers.newUsersLast7Days ?? "0", percent: "+3.5%", color: "text-blue-400" },
+   
   ];
-
+  const baseUri = import.meta.env.VITE_API_URI?.replace(/\/$/, "");
+  const token = localStorage.getItem("accessToken")
   const handleSaveInfo = (newGuideData) => {
   
     console.log("Saving Guide:", newGuideData);
@@ -24,13 +26,16 @@ const AdUser = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch("/api/admin-users", {
+        const res = await fetch(`${baseUri}/admin/userStats`, {
+        
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         const data = await res.json();
-        setUsers(data.users || data);
+        setUsers(data.users || []);
+       setTotalUsers({ totalUsers: data.totalUsers || 0 });
+      setNewUsers({ newUsersLast7Days: data.newUsersLast7Days || 0 });
       } catch (err) {
         console.error("Failed to fetch users", err);
       } finally {
@@ -64,7 +69,7 @@ const AdUser = () => {
           <div key={item.id} className="bg-gray-800/40 border border-gray-700/50 p-5 rounded-2xl">
             <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">{item.name}</p>
             <div className="flex justify-between items-end mt-2">
-              <p className="text-2xl font-black text-white">{item.numbers}</p>
+              <p className="text-2xl font-black text-white">{item.value}</p>
               <span className={`text-xs font-bold px-2 py-0.5 rounded-md bg-gray-900/40 ${
                 item.percent.startsWith("+") ? "text-emerald-400" : "text-rose-400"
               }`}>

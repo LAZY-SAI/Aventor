@@ -7,7 +7,8 @@ import {
   FaImage,
   FaTimes,
   FaUpload,
-  FaMapMarkerAlt
+  FaMapMarkerAlt,
+  FaSearch
 } from "react-icons/fa";
 
 const AdItineryPop = ({ isOpen, onClose, onSave }) => {
@@ -16,8 +17,15 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [validDestination, setValidDestination] = useState(null); 
+  const [validDestination, setValidDestination] = useState(null);
+  
+  // --- NEW STATES FOR AUTOFILL ---
+  const [allDestinations, setAllDestinations] = useState([]);
+  const [filteredDestinations, setFilteredDestinations] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  
   const fileInputRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   const initialItineraryState = {
     title: "",
@@ -48,17 +56,45 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
   const token = localStorage.getItem("accessToken");
   const baseUri = import.meta.env.VITE_API_URI?.replace(/\/$/, "");
 
+  // 1. Fetch destinations once when modal opens
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      const fetchDestinations = async () => {
+        try {
+          const res = await fetch(`${baseUri}/destinations`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          const list = data.content || data.data || data;
+          setAllDestinations(Array.isArray(list) ? list : []);
+        } catch (err) {
+          console.error("Failed to load destinations", err);
+        }
+      };
+      fetchDestinations();
+    } else {
+      // Reset logic
       setFormData(initialItineraryState);
       setItemData(initialItemState);
       setStep(1);
       setCreatedId(null);
       setSelectedFile(null);
       setPreviewUrl(null);
-      setValidDestination(null); 
+      setValidDestination(null);
+      setShowDropdown(false);
     }
   }, [isOpen]);
+
+  // Close dropdown if clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -78,20 +114,35 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  // --- UPDATED HANDLE CHANGE FOR AUTOFILL ---
   const handleItineraryChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const finalValue = type === "checkbox" ? checked : value;
+
+    setFormData((prev) => ({ ...prev, [name]: finalValue }));
+
+    if (name === "title") {
+      if (value.length > 0) {
+        const filtered = allDestinations.filter((dest) =>
+          dest.name.toLowerCase().includes(value.toLowerCase())
+        );
+        setFilteredDestinations(filtered);
+        setShowDropdown(true);
+      } else {
+        setShowDropdown(false);
+      }
+    }
+  };
+
+  const selectDestination = (dest) => {
+    setFormData((prev) => ({ ...prev, title: dest.name }));
+    setValidDestination(dest);
+    setShowDropdown(false);
   };
 
   const handleItemChange = (e) => {
     const { name, value } = e.target;
-    
-   
     if ((name === "startTime" || name === "endTime") && value) {
-      
       const formattedValue = value.length === 5 ? `${value}:00` : value;
       setItemData((prev) => ({ ...prev, [name]: formattedValue }));
     } else {
@@ -99,95 +150,30 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
     }
   };
 
-  const formatTimeToString = (timeStr) => {
-    if (!timeStr) return "00:00:00";
-    
- 
-    if (timeStr.length === 8 && timeStr.split(":").length === 3) {
-      return timeStr;
-    }
-    
-    // If in HH:MM format, append :00
-    if (timeStr.length === 5 && timeStr.split(":").length === 2) {
-      return `${timeStr}:00`;
-    }
-    
-    return timeStr;
-  };
-
-  const formatTimeToObj = (timeStr) => {
-    if (!timeStr) return { hour: 0, minute: 0, second: 0, nano: 0 };
-    
-    
-    const parts = timeStr.split(":");
-    const hour = parseInt(parts[0]) || 0;
-    const minute = parseInt(parts[1]) || 0;
-    const second = parseInt(parts[2]) || 0;
-    const nano = parseInt(parts[3])||0
-    return { 
-      hour: hour, 
-      minute: minute, 
-      second: second, 
-      nano: nano
-    };
-  };
-
-
-  const checkValidDestination = async (titleToCheck) => {
-    try {
-      const response = await fetch(`${baseUri}/destinations`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch destinations");
-      }
-
-      const data = await response.json();
-      console.log("All Destinations:", data);
-
-   
-      const destinations = data.content || data.data || data;
-
-      const matchedDestination = Array.isArray(destinations) 
-        ? destinations.find(dest => 
-            dest.name?.toLowerCase() === titleToCheck.toLowerCase()
-          )
-        : null;
-
-      if (matchedDestination) {
-        console.log("Found matching destination:", matchedDestination);
-        setValidDestination(matchedDestination);
-        return matchedDestination;
-      } else {
-        console.log("No matching destination found for:", titleToCheck);
-        setValidDestination(null);
-        return null;
-      }
-    } catch (error) {
-      console.error("Error checking destinations:", error);
-      toast.error("Failed to verify destination");
-      return null;
-    }
-  };
+  // const formatTimeToString = (timeStr) => {
+  //   if (!timeStr) return "00:00:00";
+  //   if (timeStr.length === 8) return timeStr;
+  //   if (timeStr.length === 5) return `${timeStr}:00`;
+  //   return timeStr;
+  // };
 
   const submitStepOne = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-   
-      const destination = await checkValidDestination(formData.title);
+ 
+      const match = allDestinations.find(
+        (d) => d.name.toLowerCase() === formData.title.toLowerCase()
+      );
 
-      if (!destination) {
-        toast.error("Not a valid destination. Please create the destination first or use an existing destination name.");
+      if (!match) {
+        toast.error("Invalid destination. Please select from the dropdown.");
         setLoading(false);
         return;
       }
 
+      setValidDestination(match);
 
       const data = new FormData();
       const jsonBlob = new Blob([JSON.stringify(formData)], { type: "application/json" });
@@ -201,17 +187,8 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
       });
 
       const result = await res.json();
-      console.log("Step 1 Response:", result);
-
       if (res.ok) {
         const itineraryId = result.id || result.data?.id;
-
-        if (!itineraryId) {
-          toast.error("Failed to get itinerary ID");
-          console.error("Response structure:", result);
-          return;
-        }
-
         setCreatedId(itineraryId);
         setItemData((prev) => ({
           ...prev,
@@ -223,8 +200,8 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
         toast.error(result.message || "Failed to initialize");
       }
     } catch (err) {
-      console.error("Step 1 Error:", err);
       toast.error("Network error.");
+      console.log(err)
     } finally {
       setLoading(false);
     }
@@ -234,63 +211,18 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
     e.preventDefault();
     setLoading(true);
 
-    // ✅ Validate destination exists
-    if (!validDestination || !validDestination.id) {
-      toast.error("No valid destination found. Please go back and verify.");
-      setLoading(false);
-      return;
-    }
-
-    // ✅ Validate time logic
-    const startHour = parseInt(itemData.startTime.split(':')[0]);
-    const startMinute = parseInt(itemData.startTime.split(':')[1]);
-    const endHour = parseInt(itemData.endTime.split(':')[0]);
-    const endMinute = parseInt(itemData.endTime.split(':')[1]);
-    
-    const startTotalMinutes = startHour * 60 + startMinute;
-    const endTotalMinutes = endHour * 60 + endMinute;
-    
-    if (endTotalMinutes <= startTotalMinutes) {
-      toast.error("End time must be after start time!");
-      setLoading(false);
-      return;
-    }
-
-    // ✅ Validate all required fields
-    if (!itemData.title || itemData.title.trim() === '') {
-      toast.error("Activity title is required");
-      setLoading(false);
-      return;
-    }
-
-    if (itemData.dayNumber < 1) {
-      toast.error("Day number must be at least 1");
-      setLoading(false);
-      return;
-    }
-
-    if (itemData.orderInDay < 1) {
-      toast.error("Order in day must be at least 1");
-      setLoading(false);
-      return;
-    }
-
     const payload = {
-      destinationId: validDestination.id, // ✅ Use the validated destination ID
+      destinationId: validDestination.id,
       dayNumber: parseInt(itemData.dayNumber),
       orderInDay: parseInt(itemData.orderInDay),
       title: itemData.title,
       notes: itemData.notes || "",
-      startTime: formatTimeToString(itemData.startTime), // ✅ Send as "HH:MM:SS" string
-      endTime: formatTimeToString(itemData.endTime),     // ✅ Send as "HH:MM:SS" string
+      startTime: itemData.startTime,
+      endTime: itemData.endTime,
       activityType: itemData.activityType || "",
       estimatedCost: parseFloat(itemData.estimatedCost) || 0,
       isVisited: itemData.isVisited,
     };
-
-    console.log("Step 2 Payload:", JSON.stringify(payload, null, 2));
-    console.log("Adding to Itinerary ID:", createdId);
-    console.log("Using Destination ID:", validDestination.id);
 
     try {
       const res = await fetch(`${baseUri}/itinerary/${createdId}/items`, {
@@ -302,42 +234,28 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
         body: JSON.stringify(payload),
       });
 
-      const result = await res.json();
-      console.log("Step 2 Response:", result);
-
       if (res.ok) {
         toast.success("Activities Synced!");
         if (onSave) onSave();
         onClose();
       } else {
+        const result = await res.json();
         toast.error(result.message || "Failed to add activity");
-        console.error("Step 2 Error Response:", result);
       }
     } catch (err) {
-      console.error("Step 2 Network Error:", err);
       toast.error("Sync error.");
+      console.error(err)
     } finally {
       setLoading(false);
     }
   };
 
-  const Toggle = ({ label, name, checked, onChange }) => (
-    <div className="flex items-center justify-between p-3 bg-gray-900/30 rounded-xl border border-gray-800 hover:border-gray-700 transition-colors">
-      <span className="text-xs font-medium text-gray-400">{label}</span>
-      <label className="relative inline-flex items-center cursor-pointer">
-        <input type="checkbox" name={name} checked={!!checked} onChange={onChange} className="sr-only peer" />
-        <div className="w-10 h-5 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600 peer-checked:after:bg-white"></div>
-      </label>
-    </div>
-  );
-
-  const inputClass = "w-full px-4 py-3 bg-gray-950/50 border border-gray-800 rounded-xl text-white text-sm focus:border-emerald-500 outline-none transition-all placeholder:text-gray-700";
   const labelClass = "block text-[10px] font-black uppercase text-gray-500 mb-2 ml-1 tracking-[0.15em]";
+  const inputClass = "w-full px-4 py-3 bg-gray-950/50 border border-gray-800 rounded-xl text-white text-sm focus:border-emerald-500 outline-none transition-all placeholder:text-gray-700";
 
   return (
     <Model isOpen={isOpen} onClose={onClose} title={step === 1 ? "Initialize Expedition" : "Define Timeline"}>
       <div className="relative overflow-hidden">
-        {/* Progress Tracker */}
         <div className="flex w-full h-1.5 bg-gray-900 overflow-hidden">
           <div className={`h-full bg-emerald-500 transition-all duration-700 ease-in-out ${step === 1 ? "w-1/3" : "w-full"}`} />
         </div>
@@ -374,10 +292,39 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
               </div>
             </div>
 
-            <div>
+            {/* AUTOFILL INPUT FIELD */}
+            <div className="relative" ref={dropdownRef}>
               <label className={labelClass}>Itinerary Name (must match existing destination)</label>
-              <input name="title" required value={formData.title} onChange={handleItineraryChange} className={inputClass} placeholder="e.g. Himalayan Secrets" />
-              <p className="text-[9px] text-gray-500 mt-1 ml-1">⚠️ Must match an existing destination name exactly</p>
+              <div className="relative">
+                <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-700 text-xs" />
+                <input 
+                  name="title" 
+                  autoComplete="off"
+                  required 
+                  value={formData.title} 
+                  onChange={handleItineraryChange} 
+                  onFocus={() => formData.title && setShowDropdown(true)}
+                  className={`${inputClass} pl-10`} 
+                  placeholder="Type to search destinations..." 
+                />
+              </div>
+
+              {/* DROPDOWN MENU */}
+              {showDropdown && filteredDestinations.length > 0 && (
+                <ul className="absolute z-50 w-full mt-2 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl max-h-52 overflow-y-auto no-scrollbar backdrop-blur-xl">
+                  {filteredDestinations.map((dest) => (
+                    <li 
+                      key={dest.id}
+                      onClick={() => selectDestination(dest)}
+                      className="px-4 py-3 text-sm text-gray-400 hover:bg-emerald-600 hover:text-white cursor-pointer transition-colors flex justify-between items-center border-b border-gray-800/50 last:border-0"
+                    >
+                      <span className="font-medium">{dest.name}</span>
+                      <FaArrowRight size={10} className="opacity-0 group-hover:opacity-100" />
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p className="text-[9px] text-gray-500 mt-1 ml-1">⚠️ Use suggestions to ensure valid database linking</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -385,7 +332,6 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
                 <label className={labelClass}>Duration (Days)</label>
                 <input type="number" name="totalDays" required value={formData.totalDays} onChange={handleItineraryChange} className={inputClass} />
               </div>
-
               <div>
                 <label className={labelClass}>Estimated Budget</label>
                 <input type="number" name="estimatedBudget" required value={formData.estimatedBudget} onChange={handleItineraryChange} className={inputClass} />
@@ -415,8 +361,6 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
 
           {/* STEP 2: ACTIVITY INFO */}
           <form onSubmit={submitStepTwo} className="min-w-full px-8 py-8 space-y-6 max-h-[75vh] overflow-y-auto no-scrollbar">
-            
-            {/* --- PERSISTENT PREVIEW FROM STEP 1 --- */}
             <div className="relative w-full h-28 rounded-2xl overflow-hidden border border-gray-800 shadow-lg">
               {previewUrl ? (
                 <img src={previewUrl} alt="Selected Hero" className="w-full h-full object-cover opacity-60" />
@@ -432,9 +376,9 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
             <div className="bg-emerald-500/5 p-4 rounded-2xl border border-emerald-500/20 flex items-center justify-between">
               <div>
                 <p className="text-emerald-400 text-[9px] font-black uppercase tracking-widest">Database Linked</p>
-                <p className="text-gray-500 font-mono text-[10px] truncate w-40">Itinerary: {createdId}</p>
+                <p className="text-gray-500 font-mono text-[10px] truncate w-40">Itinerary ID: {createdId}</p>
                 {validDestination && (
-                  <p className="text-gray-500 font-mono text-[10px] truncate w-40">Destination: {validDestination.id}</p>
+                  <p className="text-gray-500 font-mono text-[10px] truncate w-40">Dest ID: {validDestination.id}</p>
                 )}
               </div>
               <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500"><FaCheck size={12} /></div>
@@ -451,74 +395,33 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Day Number</label>
-                <input 
-                  type="number" 
-                  name="dayNumber" 
-                  required
-                  value={itemData.dayNumber} 
-                  onChange={handleItemChange} 
-                  className={inputClass}
-                  min="1"
-                />
+                <input type="number" name="dayNumber" required value={itemData.dayNumber} onChange={handleItemChange} className={inputClass} min="1" />
               </div>
               <div>
                 <label className={labelClass}>Order in Day</label>
-                <input 
-                  type="number" 
-                  name="orderInDay" 
-                  required
-                  value={itemData.orderInDay} 
-                  onChange={handleItemChange} 
-                  className={inputClass}
-                  min="1"
-                />
+                <input type="number" name="orderInDay" required value={itemData.orderInDay} onChange={handleItemChange} className={inputClass} min="1" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Activity Type</label>
-                <input name="activityType" value={itemData.activityType} onChange={handleItemChange} className={inputClass} placeholder="Transport / Meal / Sightseeing" />
+                <input name="activityType" value={itemData.activityType} onChange={handleItemChange} className={inputClass} placeholder="Sightseeing/Meal" />
               </div>
-
               <div>
                 <label className={labelClass}>Estimated Cost</label>
-                <input 
-                  name="estimatedCost"
-                  type="number"
-                  className={inputClass} 
-                  value={itemData.estimatedCost} 
-                  onChange={handleItemChange}
-                  min="0"
-                  step="0.01"
-                />
+                <input name="estimatedCost" type="number" className={inputClass} value={itemData.estimatedCost} onChange={handleItemChange} min="0" step="0.01" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Start Time</label>
-                <input 
-                  className={inputClass} 
-                  type="time" 
-                  name="startTime" 
-                  value={itemData.startTime} 
-                  onChange={handleItemChange} 
-                  step="1"
-                  required 
-                />
+                <input className={inputClass} type="time" name="startTime" value={itemData.startTime} onChange={handleItemChange} step="1" required />
               </div>
               <div>
                 <label className={labelClass}>End Time</label>
-                <input 
-                  className={inputClass} 
-                  type="time" 
-                  name="endTime" 
-                  value={itemData.endTime} 
-                  onChange={handleItemChange} 
-                  step="1"
-                  required 
-                />
+                <input className={inputClass} type="time" name="endTime" value={itemData.endTime} onChange={handleItemChange} step="1" required />
               </div>
             </div>
 

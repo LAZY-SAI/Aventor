@@ -13,20 +13,22 @@ adUser.post('/admin-users',(req,res)=>{
     return res.status(201).json({message:"guide added successfully"})
 })
 
-// adUser.get("/admin-users", async (req, res) => {
-//     try {
-//         const response = await axios.get(
-//             `${BACKEND}/api/admin/stats`,
-//             {
-//                 headers: {
-//                     Authorization: req.headers.authorization
-//                 }
-//             }
-//         );
-//
-//         res.status(200).json(response.data);
-//     } catch (error) {
-//         console.error(error.message);
-//         res.status(500).json({ message: "Failed to fetch admin users" });
-//     }
-// });
+adUser.get("/admin/userStats", async (req, res) => {
+   const token = req.headers.authorization
+    try {
+        const response = await axios.get(
+            `${BACKEND}/api/admin/stats`,
+            {
+                headers: {
+                    Authorization:token
+                }
+            }
+        );
+        console.log("Response:", response.data) // ADD THIS
+        res.status(200).json(response.data);
+    } catch (error) {
+        console.error("Full error:", error.message); // CHECK THIS
+        res.status(500).json({ message: "Failed to fetch admin users" });
+    }
+});
+export default adUser
