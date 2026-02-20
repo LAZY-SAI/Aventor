@@ -23,7 +23,7 @@ const AdItinery = () => {
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [activeMenuId, setActiveMenuId] = useState(null);
-
+  
   const navigate = useNavigate();
   const menuRef = useRef(null);
   const token = localStorage.getItem("accessToken");

@@ -56,28 +56,22 @@ const AdminNav = () => {
       category: "Overview",
     },
     {
-      id: 5,
+      id: 4,
       name: "Itineraries",
       logo: <FaRoute />, 
       Link: "/admin/itinery",
       category: "Overview",
     },
+   
     {
-      id: 4,
-      name: "Notifications",
-      logo: <FaBell />,
-      Link: "/admin/notify",
-      category: "System",
-    },
-    {
-      id: 6,
+      id: 5,
       name: "Settings",
       logo: <IoSettingsOutline />,
       Link: "/admin/setting",
       category: "System",
     },
     {
-      id: 7,
+      id: 6,
       name: "Logout",
       Link: "/signup",
       logo: <CiLogout />,

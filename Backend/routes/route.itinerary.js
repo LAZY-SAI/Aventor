@@ -306,7 +306,7 @@ newData.append("images" ,new Blob([JSON.stringify(metaData)], { type: "applicati
     });
   }
 });
-// ─── UPDATE ITINERARY HEADER (JSON only, no image) ────────────────────────────
+// ─── UPDATE ITINERARY HEADER___________
 itineraryRoute.put("/itinerary/:id/items", async (req, res) => {
   const { id } = req.params;
   const token = req.headers.authorization;
