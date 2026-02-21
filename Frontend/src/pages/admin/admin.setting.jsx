@@ -16,7 +16,7 @@ const Setting = () => {
   const [adminData, setAdminData] = useState(null);       
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  console.log(Id)
   useEffect(() => {
     const fetchAdmin = async () => {                       
       try {

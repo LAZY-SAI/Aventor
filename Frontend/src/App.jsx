@@ -30,6 +30,7 @@ const App = () => {
     "/admin/setting",
     "/admin/itinery",
     "/admin/editItinerary/:id/items",
+    "/admin/interests",
     "/plan/create",
     "/plan/set",
     "/plan/preview",

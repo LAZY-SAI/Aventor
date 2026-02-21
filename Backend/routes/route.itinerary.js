@@ -20,28 +20,20 @@ const apiClient = axios.create({
   },
 });
 
-// ✅ Defined at top level before any routes
-const timeStringToObject = (timeVal) => {
-  // 1. Handle null/undefined
-  if (!timeVal) return { hour: 0, minute: 0, second: 0, nano: 0 };
-
-  // 2. If it's already an object (from Frontend), just return it
-  if (typeof timeVal === 'object' && timeVal !== null) {
-    return {
-      hour: timeVal.hour || 0,
-      minute: timeVal.minute || 0,
-      second: timeVal.second || 0,
-      nano: timeVal.nano || 0
-    };
+// ─── Ensure time is "HH:MM:SS" string for Java backend ───────────────────────
+const toTimeString = (timeVal) => {
+  if (!timeVal) return "00:00:00";
+  // If it's already an object {hour, minute, second, nano} convert to string
+  if (typeof timeVal === "object") {
+    const h = String(timeVal.hour || 0).padStart(2, "0");
+    const m = String(timeVal.minute || 0).padStart(2, "0");
+    const s = String(timeVal.second || 0).padStart(2, "0");
+    return `${h}:${m}:${s}`;
   }
-
-  // 3. If it's a string, split it
-  if (typeof timeVal === 'string') {
-    const [hour, minute, second] = timeVal.split(":").map(Number);
-    return { hour: hour || 0, minute: minute || 0, second: second || 0, nano: 0 };
-  }
-
-  return { hour: 0, minute: 0, second: 0, nano: 0 };
+  // If "HH:MM" add seconds
+  if (typeof timeVal === "string" && timeVal.length === 5) return `${timeVal}:00`;
+  // Already "HH:MM:SS"
+  return timeVal;
 };
 
 const retryRequest = async (requestFn, retries = 3) => {
@@ -104,7 +96,7 @@ itineraryRoute.post("/create/itinerary", upload.any(), async (req, res) => {
 });
 
 // ─── ADD ITEMS TO ITINERARY (POST) ───────────────────────────────────────────
-itineraryRoute.post("/itinerary/:id/items",upload.single("image") ,async (req, res) => {
+itineraryRoute.post("/itinerary/:id/items", async (req, res) => {
   const { id } = req.params;
   const token = req.headers.authorization;
   const body = req.body;
@@ -116,55 +108,28 @@ itineraryRoute.post("/itinerary/:id/items",upload.single("image") ,async (req, r
   if (!token) return res.status(401).json({ message: "Authorization token required" });
 
   try {
-  const rawItems = body.itineraryItems ? body.itineraryItems : [body];
-   const formattedItems = rawItems.map((item) => ({
-  
-  destinationId: item.destinationId || null,
-  dayNumber: parseInt(item.dayNumber),
-  orderInDay: parseInt(item.orderInDay),
-  title: item.title,
-  notes: item.notes || "",
-  activityType: item.activityType || "",
-  isVisited: item.isVisited || false,
-  estimatedCost: parseFloat(item.estimatedCost) || 0,
-  startTime: item.startTime,
-  endTime: item.endTime,
-  isVisited : item.isVisited || true,
-  
-}))
-// const metaData = {
-//   title:req.body.title,
-//   description:req.body.description,
-//   status: req.body.status || "TEMPLATE",
-//       theme: req.body.theme || "",
-//       totalDays: parseInt(req.body.totalDays) || 1,
-//       startDate: req.body.startDate || null,
-//       endDate: req.body.endDate || null,
-//       estimatedBudget: req.body.estimatedBudget ? parseFloat(req.body.estimatedBudget) : 0,
-// }
+    const rawItems = body.itineraryItems ? body.itineraryItems : [body];
+    const formattedItems = rawItems.map((item) => ({
+      destinationId: item.destinationId || null,
+      dayNumber: parseInt(item.dayNumber),
+      orderInDay: parseInt(item.orderInDay),
+      title: item.title,
+      notes: item.notes || "",
+      activityType: item.activityType || "VISIT",
+      isVisited: item.isVisited ?? true,
+      estimatedCost: parseFloat(item.estimatedCost) || 0,
+      startTime: toTimeString(item.startTime),
+      endTime: toTimeString(item.endTime),
+    }));
 
     const payload = formattedItems[0];
-
-    // const form = new FormData();
-    
-  
-    // form.append("data", new Blob([JSON.stringify(metaData)], { type: "application/json" }));
-
-   
-    // if (req.file) {
-    //   form.append(
-    //     "files", 
-    //     new Blob([req.file.buffer], { type: req.file.mimetype }), 
-    //     req.file.originalname
-    //   );
-    // }
     console.log("📤 Final payload to backend:", JSON.stringify(payload, null, 2));
 
     const response = await retryRequest(() =>
       apiClient.post(`${BACKEND}/api/v1/admin/itineraries/${id}/items`, payload, {
         headers: {
           Authorization: token,
-          "content-type":"application/json",
+          "Content-Type": "application/json",
           "ngrok-skip-browser-warning": "true",
         },
       })
@@ -172,10 +137,7 @@ itineraryRoute.post("/itinerary/:id/items",upload.single("image") ,async (req, r
 
     res.status(200).json({ message: "Items added successfully", data: response.data });
   } catch (error) {
-    console.error("❌ Add Items Error:");
-    console.error("Code:", error.code);
-    console.error("Message:", error.message);
-    console.error("Response:", error.response?.data);
+    console.error("❌ Add Items Error:", error.response?.data || error.message);
     res.status(error.response?.status || 500).json({
       message: error.response?.data?.message || "Failed to add items",
       details: error.response?.data,
@@ -245,69 +207,7 @@ itineraryRoute.get("/itineraries/:id", async (req, res) => {
 });
 
 // ─── UPDATE ITINERARY HEADER ──────────────────────────────────────────────────
-itineraryRoute.put("/itinerary/:id", upload.single("image"),async (req, res) => {
-  const { id } = req.params;
-  const token = req.headers.authorization;
-  const body = req.body;
-  if (!token) return res.status(401).json({ message: "Authorization token required" });
-
-  try {
-    // const payload = {
-    //   title: body.title,
-    //   description: body.description || "",
-    //   status: body.status || "TEMPLATE",
-    //   theme: body.theme || "",
-    //   totalDays: parseInt(body.totalDays) || 1,
-    //   startDate: body.startDate ||  "2026-02-19",
-    //   endDate: body.endDate ||  "2026-02-19",
-    //   estimatedBudget: body.estimatedBudget ? parseFloat(body.estimatedBudget) : 0,
-    //   images: null, 
-    // };
-
-    const metaData = {
-  title:req.body.title,
-  description:req.body.description,
-  status: req.body.status || "TEMPLATE",
-      theme: req.body.theme || "",
-      totalDays: parseInt(req.body.totalDays) || 1,
-      startDate: req.body.startDate || null,
-      endDate: req.body.endDate || null,
-      estimatedBudget: req.body.estimatedBudget ? parseFloat(req.body.estimatedBudget) : 0,
-}
-
-const newData = new FormData()
-
-newData.append("images" ,new Blob([JSON.stringify(metaData)], { type: "application/json" }))
-
- if (req.file) {
-      form.append(
-        "files", 
-        new Blob([req.file.buffer], { type: req.file.mimetype }), 
-        req.file.originalname
-      );
-    }
-    console.log("📤 Updating itinerary:", JSON.stringify(payload, null, 2));
-
-    const response = await retryRequest(() =>
-      apiClient.put(`${BACKEND}/api/v1/admin/itineraries/${id}`, metaData, {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      })
-    );
-
-    res.status(200).json({ message: "Itinerary updated successfully", data: response.data });
-  } catch (error) {
-    console.error("❌ Update error:", error.response?.data || error.message);
-    res.status(error.response?.status || 500).json({
-      message: error.response?.data?.message || "Failed to update itinerary",
-    });
-  }
-});
-// ─── UPDATE ITINERARY HEADER___________
-itineraryRoute.put("/itinerary/:id/items", async (req, res) => {
+itineraryRoute.put("/itineraries/:id", async (req, res) => {
   const { id } = req.params;
   const token = req.headers.authorization;
   const body = req.body;
@@ -359,18 +259,18 @@ itineraryRoute.put("/itineraries/:id/items/:itemId", async (req, res) => {
   try {
     const payload = {
       destinationId: body.destinationId || null,
-      dayNumber: body.dayNumber,
-      orderInDay: body.orderInDay, 
+      dayNumber: parseInt(body.dayNumber),
+      orderInDay: parseInt(body.orderInDay),
       title: body.title,
       notes: body.notes || "",
-      startTime: timeStringToObject(body.startTime), 
-      endTime: timeStringToObject(body.endTime),     
-      activityType: body.activityType || "",
+      startTime: toTimeString(body.startTime),   // ✅ string "HH:MM:SS"
+      endTime: toTimeString(body.endTime),         // ✅ string "HH:MM:SS"
+      activityType: body.activityType || "VISIT",
       estimatedCost: parseFloat(body.estimatedCost) || 0,
-      isVisited: body.isVisited || true,
+      isVisited: body.isVisited ?? true,
     };
 
-    console.log("PUT item payload to backend:", JSON.stringify(payload, null, 2));
+    console.log("PUT item payload to Java:", JSON.stringify(payload, null, 2));
 
     const response = await retryRequest(() =>
       apiClient.put(
@@ -389,8 +289,8 @@ itineraryRoute.put("/itineraries/:id/items/:itemId", async (req, res) => {
     console.log("✅ Item updated:", response.data);
     res.status(200).json({ message: "Item updated successfully", data: response.data });
   } catch (error) {
-    console.error("❌ Update item error:", error.response?.data || error.message);
-    console.error("❌ Full error:", JSON.stringify(error.response?.data, null, 2));
+    console.error("❌ Java error status:", error.response?.status);
+    console.error("❌ Java error body:", JSON.stringify(error.response?.data, null, 2));
     res.status(error.response?.status || 500).json({
       message: error.response?.data?.message || "Failed to update item",
       details: error.response?.data,

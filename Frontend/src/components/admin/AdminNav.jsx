@@ -3,7 +3,7 @@ import { FaUsers, FaMap, FaBell, FaRoute } from "react-icons/fa";
 import { CiLogout } from "react-icons/ci";
 import { IoSettingsOutline } from "react-icons/io5";
 import { Link, useLocation } from "react-router-dom";
-
+import { MdInterests } from "react-icons/md";
 const NavItem = ({ name, logo, isActive }) => {
   const baseClasses =
     "w-[12rem] flex items-center text-sm p-3 gap-3 rounded-xl cursor-pointer transition-all duration-200 group ";
@@ -62,16 +62,23 @@ const AdminNav = () => {
       Link: "/admin/itinery",
       category: "Overview",
     },
-   
     {
-      id: 5,
+      id:5,
+      name:"Interests",
+      logo:<MdInterests/>,
+      Link:"/admin/interests",
+      category:"Overview"
+    }
+   ,
+    {
+      id: 6,
       name: "Settings",
       logo: <IoSettingsOutline />,
       Link: "/admin/setting",
       category: "System",
     },
     {
-      id: 6,
+      id: 7,
       name: "Logout",
       Link: "/signup",
       logo: <CiLogout />,

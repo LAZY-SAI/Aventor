@@ -152,10 +152,10 @@ const Signup = () => {
         }),
       });
       const data = await res.json();
-     
+     console.log(data)
       if (!res.ok) throw new Error(data.message || "Login failed");
       if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
-      if(data.accessToken) localStorage.setItem("id",data.id)
+      if(data.accessToken) localStorage.setItem("id",data.user.id)
       toast.success(`Welcome back, ${data.user.username}!`);
       login(data.user.username, data.token);
      setTimeout(() => {

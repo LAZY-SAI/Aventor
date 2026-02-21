@@ -56,7 +56,7 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
   const token = localStorage.getItem("accessToken");
   const baseUri = import.meta.env.VITE_API_URI?.replace(/\/$/, "");
 
-  // 1. Fetch destinations once when modal opens
+ 
   useEffect(() => {
     if (isOpen) {
       const fetchDestinations = async () => {

@@ -11,6 +11,7 @@ import adminRoute from "./routes/route.admin.js";
 import authRoute from "./routes/route.auth.js"
 import imgRoute from "./routes/route.image.js";
 import itineraryRoute from "./routes/route.itinerary.js"
+import interestRoute from "./routes/route.interest.js"
 import adUser from './routes/route.aduser.js'
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -49,7 +50,8 @@ app.use("/", adminRoute);
 app.use("/",adUser);
 app.use("/",imgRoute);
 app.use("/", authRoute);
-app.use("/", itineraryRoute)
+app.use("/", itineraryRoute);
+app.use("/",interestRoute)
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
