@@ -15,8 +15,7 @@ const AdminRoutes = () => {
       {/* Nested admin routes */}
       <Route path="users" element={<AdUser />} />
       <Route path="destination" element={<AdDestination />} />
-      <Route path="setting" element={<AdSetting />} />
-    
+      <Route path="setting" element={<AdSetting />} />  
       <Route path="Itinery" element={<AdItinery />} />
       <Route path="editItinerary/:id/items" element={<ItEdit />} />
        <Route path="interests" element={<Interest />} />

@@ -15,9 +15,7 @@ const Interest = () => {
   const [loading, setLoading] = useState(true);
  const baseUri = import.meta.env.VITE_API_URI?.replace(/\/$/, "");
  const token = localStorage.getItem("accessToken")
-  useEffect(() => 
-    {
-     const fetchData = async () => {
+  const fetchData = async () => {
       setLoading(true);
       try{
             const res = await fetch(`${baseUri}/admin/interests`,{
@@ -39,13 +37,35 @@ const Interest = () => {
         console.error(error)
       }
     }
+  useEffect(() => 
+    {
+    
      fetchData()
   }, []);
+
+  const handleDelete = async(id)=>{{
+    try{
+      const res = await fetch (`${baseUri}/admin/delete/interests/${id}`,{
+        method:"DELETE",
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      })
+      if(res.ok){
+        setInterests((prev)=>prev.filter((item)=>(item.id || item._d) !== id))
+      }
+    }
+    catch(error)
+    {
+      console.log(error)
+    }
+  }}
 
   const filteredInterests = interests.filter(i => 
     i.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  
   return (
     <AdminLayout>
       <div className="max-w-[1400px] mx-auto px-6 pb-20 text-white">
@@ -102,7 +122,7 @@ const Interest = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <AnimatePresence>
               {filteredInterests.map((item) => (
-                <InterestCard key={item.id} item={item} />
+                <InterestCard key={item.id} item={item} onDelete={handleDelete} />
               ))}
             </AnimatePresence>
           </div>
@@ -119,21 +139,25 @@ const Interest = () => {
               </thead>
               <tbody>
                 {filteredInterests.map((item) => (
-                  <InterestRow key={item.id} item={item} />
+                  <InterestRow key={item.id} item={item} onDelete={handleDelete} />
                 ))}
               </tbody>
             </table>
           </div>
         )}
       </div>
-      <InterestPopup isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <InterestPopup isOpen={isModalOpen} onScuccess={()=>{fetchData()
+        toast.success("Interest created successfully")
+      }} onClose={() => setIsModalOpen(false)} />
     </AdminLayout>
   );
 };
 
 // --- SUB-COMPONENTS ---
 
-const InterestCard = ({ item }) => (
+const InterestCard = ({ item, onDelete }) => (
+
+  
   <motion.div 
     layout
     initial={{ opacity: 0, y: 20 }}
@@ -162,10 +186,11 @@ const InterestCard = ({ item }) => (
         {item.count} Expeditions
       </span>
       <div className="flex gap-2">
-        <button className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-blue-400 transition-all">
+        {/* <button className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-blue-400 transition-all">
           <Edit3 size={16} />
-        </button>
-        <button className="p-2 hover:bg-red-500/10 rounded-lg text-slate-400 hover:text-red-500 transition-all">
+        </button> */}
+        <button  onClick={() => onDelete(item.id)}
+        className="p-2 hover:bg-red-500/10 rounded-lg text-slate-400 hover:text-red-500 transition-all">
           <Trash2 size={16} />
         </button>
       </div>
@@ -176,7 +201,7 @@ const InterestCard = ({ item }) => (
   </motion.div>
 );
 
-const InterestRow = ({ item }) => (
+const InterestRow = ({ item,onDelete }) => (
   <tr className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
     <td className="px-6 py-4">
       <div className="flex items-center gap-3">
@@ -192,10 +217,11 @@ const InterestRow = ({ item }) => (
     </td>
     <td className="px-6 py-4">
       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button className="p-2 hover:bg-emerald-500 hover:text-black rounded-lg transition-all text-emerald-500">
+        {/* <button className="p-2 hover:bg-emerald-500 hover:text-black rounded-lg transition-all text-emerald-500">
           <Edit3 size={16} />
-        </button>
-        <button className="p-2 hover:bg-red-500 hover:text-white rounded-lg transition-all text-red-500">
+        </button> */}
+        <button onClick={()=>onDelete(item.id)}
+        className="p-2 hover:bg-red-500 hover:text-white rounded-lg transition-all text-red-500">
           <Trash2 size={16} />
         </button>
       </div>

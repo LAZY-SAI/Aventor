@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Hash, Smile, Palette, Save, Info } from 'lucide-react';
+import { toast } from 'react-toastify';
 
-const InterestPopup = ({ isOpen, onClose, onScuccess }) => {
+const InterestEdit = ({ isOpen, onClose, interestData, onUpdateSuccess }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     code: '',
@@ -16,7 +17,21 @@ const InterestPopup = ({ isOpen, onClose, onScuccess }) => {
   const baseUri = import.meta.env.VITE_API_URI?.replace(/\/$/, "");
   const token = localStorage.getItem("accessToken");
 
-  // Auto-generate slug whenever name changes
+  // Pre-fill form when interestData is passed
+  useEffect(() => {
+    if (interestData) {
+      setFormData({
+        code: interestData.code || '',
+        name: interestData.name || '',
+        slug: interestData.slug || '',
+        icon: interestData.icon || '📍',
+        color: interestData.color || '#10b981',
+        active: interestData.active ?? true
+      });
+    }
+  } , [interestData]);
+
+  // Sync Slug and auto-capitalize
   useEffect(() => {
     const slug = formData.name
       .toLowerCase()
@@ -25,23 +40,19 @@ const InterestPopup = ({ isOpen, onClose, onScuccess }) => {
     setFormData(prev => ({ ...prev, slug }));
   }, [formData.name]);
 
-  
   const handleSyncChange = (value) => {
     const upperVal = value.toUpperCase();
-    setFormData(prev => ({ 
-      ...prev, 
-      code: upperVal, 
-      name: upperVal 
-    }));
+    setFormData(prev => ({ ...prev, code: upperVal, name: upperVal }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
     setIsSaving(true);
+    const toastId = toast.loading("Updating interest...");
 
     try {
-      const res = await fetch(`${baseUri}/admin/create/interest`, {
-        method: "POST",
+      const res = await fetch(`${baseUri}/admin/update/interest/${interestData.id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
@@ -50,109 +61,87 @@ const InterestPopup = ({ isOpen, onClose, onScuccess }) => {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        if(onScuccess) onScuccess()
-          setFormData({
-          code: '',
-          name: '',
-          slug: '',
-          icon: '📍',
-          color: '#10b981',
-          active: true
-        })
-        console.log("Success:", data);
-        onClose(); 
+        toast.update(toastId, { render: "Interest updated!", type: "success", isLoading: false, autoClose: 2000 });
+        if (onUpdateSuccess) onUpdateSuccess();
+        onClose();
       } else {
-       const errorData = await res.json();
-        console.error("Server Error:", errorData.message || res.statusText);
+        const error = await res.json();
+        throw new Error(error.message || "Update failed");
       }
-    } catch (error) {
-      console.error("Network Error:", error);
+    } catch (err) {
+      toast.update(toastId, { render: err.message, type: "error", isLoading: false, autoClose: 3000 });
     } finally {
       setIsSaving(false);
     }
   };
 
+  
   return (
     <AnimatePresence>
       {isOpen && (
         <>
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60]"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100]"
           />
 
-          <div className="fixed inset-0 flex items-center justify-center z-[70] p-4 pointer-events-none">
+          <div className="fixed inset-0 flex items-center justify-center z-[110] p-4 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="bg-slate-900 border border-white/10 w-full max-w-lg rounded-3xl shadow-2xl pointer-events-auto overflow-hidden"
             >
+              {/* Header */}
               <div className="px-8 py-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                 <div>
-                  <h2 className="text-xl font-bold text-white">Create New Interest</h2>
-                  <p className="text-slate-400 text-xs mt-1">Both Code and Name will be synchronized.</p>
+                  <h2 className="text-xl font-bold text-white">Update Interest</h2>
+                  <p className="text-slate-400 text-xs mt-1">Editing: <span className="text-emerald-500">{interestData?.name}</span></p>
                 </div>
                 <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full text-slate-400 transition-colors">
                   <X size={20} />
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-8 space-y-6">
+              <form onSubmit={handleUpdate} className="p-8 space-y-6">
                 <div className="grid grid-cols-1 gap-6">
-                  {/* Code Input */}
+                  {/* Code & Name (Synced) */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-500 ml-1 tracking-widest">Code</label>
+                    <label className="text-[10px] font-black uppercase text-slate-500 ml-1 tracking-widest">Interest Name & Code</label>
                     <input 
                       autoFocus
                       type='text'
                       required
-                      placeholder='TREKKING'
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-mono"
-                      value={formData.code}
-                      onChange={(e) => handleSyncChange(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Name Input */}
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-500 ml-1 tracking-widest">Interest Name</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="TREKKING"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-bold"
                       value={formData.name}
                       onChange={(e) => handleSyncChange(e.target.value)}
                     />
                   </div>
 
-                  {/* Slug (Read Only) */}
+                  {/* Slug (Generated) */}
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-500 ml-1 tracking-widest">URL Slug</label>
+                    <label className="text-[10px] font-black uppercase text-slate-500 ml-1 tracking-widest">System Slug</label>
                     <div className="relative">
                       <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={14} />
                       <input
                         type="text"
                         readOnly
-                        className="w-full bg-white/[0.02] border border-white/5 rounded-xl px-10 py-3 text-slate-500 text-sm outline-none cursor-not-allowed"
+                        className="w-full bg-white/[0.02] border border-white/5 rounded-xl px-10 py-3 text-slate-500 text-sm cursor-not-allowed"
                         value={formData.slug}
                       />
                     </div>
                   </div>
                 </div>
 
+                {/* Icon & Color Row */}
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-slate-500 ml-1 tracking-widest flex items-center gap-2">
                       <Smile size={12} /> Icon
                     </label>
                     <select 
-                      className="w-full  border border-white/10 rounded-xl bg-gray-800 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-emerald-500/50 appearance-none"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-emerald-500/50 appearance-none"
                       value={formData.icon}
                       onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
                     >
@@ -160,7 +149,7 @@ const InterestPopup = ({ isOpen, onClose, onScuccess }) => {
                       <option value="🌊">🌊 Beach</option>
                       <option value="🍕">🍕 Food</option>
                       <option value="🏛️">🏛️ Culture</option>
-                      <option value="💎">💎 Luxury</option>
+                      <option value="📍">📍 Landmark</option>
                     </select>
                   </div>
 
@@ -180,19 +169,19 @@ const InterestPopup = ({ isOpen, onClose, onScuccess }) => {
                   </div>
                 </div>
 
-                <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl flex gap-3">
-                  <Info className="text-emerald-500 shrink-0" size={18} />
-                  <p className="text-[11px] text-emerald-200/60 leading-relaxed">
-                    Name and Code are automatically formatted to uppercase for consistency.
+                <div className="p-4 bg-blue-500/5 border border-blue-500/10 rounded-2xl flex gap-3">
+                  <Info className="text-blue-500 shrink-0" size={18} />
+                  <p className="text-[11px] text-blue-200/60 leading-relaxed">
+                    Updating this will affect all itineraries currently tagged with this interest.
                   </p>
                 </div>
 
+                {/* Actions */}
                 <div className="flex gap-3 pt-4">
                   <button
                     type="button"
-                    disabled={isSaving}
                     onClick={onClose}
-                    className="flex-1 px-6 py-3 rounded-xl border border-white/10 text-white font-bold hover:bg-white/5 transition-all disabled:opacity-50"
+                    className="flex-1 px-6 py-3 rounded-xl border border-white/10 text-white font-bold hover:bg-white/5 transition-all"
                   >
                     Cancel
                   </button>
@@ -201,7 +190,7 @@ const InterestPopup = ({ isOpen, onClose, onScuccess }) => {
                     disabled={isSaving}
                     className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 disabled:opacity-50"
                   >
-                    {isSaving ? "Saving..." : <><Save size={18} /> Save Interest</>}
+                    {isSaving ? "Syncing..." : <><Save size={18} /> Update Changes</>}
                   </button>
                 </div>
               </form>
@@ -213,4 +202,4 @@ const InterestPopup = ({ isOpen, onClose, onScuccess }) => {
   );
 };
 
-export default InterestPopup;
+export default InterestEdit;

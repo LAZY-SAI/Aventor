@@ -1,4 +1,4 @@
-import Router from "express";
+import {Router} from "express";
 import dotenv from "dotenv";
 import axios from "axios";
 import path from "path";

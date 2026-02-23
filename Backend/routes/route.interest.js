@@ -43,6 +43,7 @@ interestRoute.post('/admin/create/interest', async(req,res)=>{
             }
 
         )
+        res.status(201).json(response.data)
     }
     catch(error)
     {
@@ -50,4 +51,28 @@ interestRoute.post('/admin/create/interest', async(req,res)=>{
     }
 })
 
+//delete inerest
+ interestRoute.delete('/admin/delete/interests/:id',async(req,res)=>{
+  const token = req.headers.authorization
+  const {id}  = req.params
+
+  try{
+      const response = await axios.delete(`${BACKEND}/api/v1/interests/${id}`,
+        {
+          headers:{
+            authorization:token
+          }
+        }
+      )
+      res.status(200).json(response.data)
+      console.log("deleted successfully")
+  }
+  catch(error)
+  {
+    console.log(error)
+     const status = error.response?.status || 500;
+    const message = error.response?.data?.message || 'Delete failed';
+    res.status(status).json({ error: message });
+  }
+ })
 export default interestRoute;

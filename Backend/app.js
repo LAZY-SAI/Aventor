@@ -46,12 +46,12 @@ app.use(cors(corsOptions));
 
 app.use("/", userRoute);
 app.use("/", destRoute);
+app.use("/",interestRoute)
 app.use("/", adminRoute);
 app.use("/",adUser);
 app.use("/",imgRoute);
 app.use("/", authRoute);
 app.use("/", itineraryRoute);
-app.use("/",interestRoute)
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
