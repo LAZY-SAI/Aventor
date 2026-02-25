@@ -263,8 +263,8 @@ itineraryRoute.put("/itineraries/:id/items/:itemId", async (req, res) => {
       orderInDay: parseInt(body.orderInDay),
       title: body.title,
       notes: body.notes || "",
-      startTime: toTimeString(body.startTime),   // ✅ string "HH:MM:SS"
-      endTime: toTimeString(body.endTime),         // ✅ string "HH:MM:SS"
+      startTime: toTimeString(body.startTime),   
+      endTime: toTimeString(body.endTime),        
       activityType: body.activityType || "VISIT",
       estimatedCost: parseFloat(body.estimatedCost) || 0,
       isVisited: body.isVisited ?? true,

@@ -159,7 +159,7 @@ const Signup = () => {
       toast.success(`Welcome back, ${data.user.username}!`);
       login(data.user.username, data.token);
      setTimeout(() => {
-  navigate(data.user.role === "ADMIN" ? "/admin" : "/userdash")
+  navigate(data.user.role === "ADMIN" ? "/admin" : "/construction")
    
 }, 1500)
     } catch (err) {

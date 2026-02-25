@@ -4,19 +4,28 @@ import { CiLogout } from "react-icons/ci";
 import { IoSettingsOutline } from "react-icons/io5";
 import { Link, useLocation } from "react-router-dom";
 import { MdInterests } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 const NavItem = ({ name, logo, isActive }) => {
   const baseClasses =
     "w-[12rem] flex items-center text-sm p-3 gap-3 rounded-xl cursor-pointer transition-all duration-200 group ";
 
-  const activeClasses = " bg-emerald-600/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]";
-  const inactiveClasses = "text-gray-400 hover:bg-gray-800/50 hover:text-white border border-transparent";
+  const activeClasses =
+    " bg-emerald-600/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]";
+  const inactiveClasses =
+    "text-gray-400 hover:bg-gray-800/50 hover:text-white border border-transparent";
 
   return (
-    <div className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}>
-      <span className={`text-lg ${isActive ? "text-emerald-400" : "text-gray-500 group-hover:text-emerald-400 transition-colors"}`}>
+    <div
+      className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
+    >
+      <span
+        className={`text-lg ${isActive ? "text-emerald-400" : "text-gray-500 group-hover:text-emerald-400 transition-colors"}`}
+      >
         {logo}
       </span>
-      <span className={`font-semibold tracking-wide ${isActive ? "text-white" : ""}`}>
+      <span
+        className={`font-semibold tracking-wide ${isActive ? "text-white" : ""}`}
+      >
         {name}
       </span>
       {isActive && (
@@ -28,7 +37,7 @@ const NavItem = ({ name, logo, isActive }) => {
 
 const AdminNav = () => {
   const location = useLocation();
-  
+  const Navigate = useNavigate();
   const isActiveLink = (linkpath) => {
     return location.pathname === linkpath;
   };
@@ -58,18 +67,17 @@ const AdminNav = () => {
     {
       id: 4,
       name: "Itineraries",
-      logo: <FaRoute />, 
+      logo: <FaRoute />,
       Link: "/admin/itinery",
       category: "Overview",
     },
     {
-      id:5,
-      name:"Interests",
-      logo:<MdInterests/>,
-      Link:"/admin/interests",
-      category:"Overview"
-    }
-   ,
+      id: 5,
+      name: "Interests",
+      logo: <MdInterests />,
+      Link: "/admin/interests",
+      category: "Overview",
+    },
     {
       id: 6,
       name: "Settings",
@@ -80,9 +88,10 @@ const AdminNav = () => {
     {
       id: 7,
       name: "Logout",
-      Link: "/signup",
+      Link: "#",
       logo: <CiLogout />,
       category: "System",
+      isLogout: true,
     },
   ];
 
@@ -92,14 +101,25 @@ const AdminNav = () => {
     return acc;
   }, {});
 
+  const handleLogout = () => {
+   
+
+    if (localStorage.getItem("accessToken")) {
+    localStorage.removeItem("accessToken");
+   
+    Navigate("/signup", { replace: true }); 
+  } else {
+    
+    Navigate("/signup")
+  }
+  };
   return (
     <nav className="min-h-screen p-6 text-white w-64 md:w-72  border-r border-gray-900 flex flex-col">
       {/* Brand Header */}
       <div className="mb-10 px-2">
         <div className="flex items-center gap-2">
-         
           <h1 className="text-xl font-black tracking-tighter text-white uppercase">
-           Yatri<span className="text-emerald-500">ka</span>
+            Yatri<span className="text-emerald-500">ka</span>
           </h1>
         </div>
       </div>
@@ -113,15 +133,33 @@ const AdminNav = () => {
             </h3>
 
             <div className="flex flex-col gap-1">
-              {items.map((item) => (
-                <Link key={item.id} to={item.Link} className="w-full block">
-                  <NavItem
-                    name={item.name}
-                    logo={item.logo}
-                    isActive={isActiveLink(item.Link)}
-                  />
-                </Link>
-              ))}
+              {items.map((item) => {
+                if (item.isLogout) {
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={handleLogout}
+                      className="w-full text-left bg-transparent border-none p-0"
+                    >
+                      <NavItem
+                        name={item.name}
+                        logo={item.logo}
+                        isActive={false}
+                      />
+                    </button>
+                  );
+                }
+
+                return (
+                  <Link key={item.id} to={item.Link} className="w-full block">
+                    <NavItem
+                      name={item.name}
+                      logo={item.logo}
+                      isActive={isActiveLink(item.Link)}
+                    />
+                  </Link>
+                );
+              })}
             </div>
           </div>
         ))}
@@ -133,7 +171,9 @@ const AdminNav = () => {
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-blue-500" />
           <div className="flex flex-col">
             <span className="text-xs font-bold text-gray-200">Admin User</span>
-            <span className="text-[10px] text-gray-500 font-medium">System Manager</span>
+            <span className="text-[10px] text-gray-500 font-medium">
+              System Manager
+            </span>
           </div>
         </div>
       </div>

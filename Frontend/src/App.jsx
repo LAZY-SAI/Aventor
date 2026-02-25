@@ -5,6 +5,7 @@ import Land from "./section/Landing";
 import Signup from "./pages/user/signup/Signup";
 import Footer from "./section/Footer";
 import Userdash from "./pages/user/UserDash";
+import Construction from "./pages/user/toBecontinue/Construction";
 import UserRoutes from "./routes/UserRoute";
 import AdminRoutes from "./routes/AdminRoute";
 import AiRoute from "./routes/AiRoute";
@@ -17,6 +18,7 @@ const App = () => {
 
   const hideFooterRoutes = [
     "/signup",
+    "/construction",
     "/userdash",
     "/plan",
     "/profile",
@@ -67,17 +69,11 @@ const App = () => {
             }
           />
           <Route path="/signup" element={<Signup />} />
+            <Route path="/construction" element={<Construction />} />
 
           {/**protected Routes⬇️ */}
 
-          <Route
-            path="/userdash"
-            element={
-              <ProtectedRoute>
-                <Userdash />
-              </ProtectedRoute>
-            }
-          />
+         
           <Route
             path="/discover"
             element={
