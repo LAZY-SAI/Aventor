@@ -69,7 +69,7 @@ const About = () => {
           <figure className="absolute inset-4 -ml-[40%] ">
             <Canvas
               camera={{
-                position: [4, 7, 7], // top-right, looking down
+                position: [4, 7, 7], 
                 fov: 50,
                 near: 0.1,
                 far: 1000,

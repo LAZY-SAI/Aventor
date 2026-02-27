@@ -42,7 +42,7 @@ const AiLayout = ({ children, title,HeaderTitle, subtitle,currentStep = 1 }) => 
    <>
 
      <div className="min-h-screen text-white p-6">
-       {/* 1. Top Header */}
+       {/*  Top Header */}
        <header className="max-w-7xl mx-auto flex justify-between items-center mb-8">
          <div>
            <h1 className="text-2xl font-bold">{title}</h1>
@@ -73,7 +73,7 @@ const AiLayout = ({ children, title,HeaderTitle, subtitle,currentStep = 1 }) => 
        </header>
 
        <main className="max-w-7xl mx-auto">
-         {/* 2. Step Header Section */}
+         {/* Step Header Section */}
          <section className="border border-emerald-900/30 p-6 rounded-xl mb-8">
            <div className="flex justify-between items-center mb-4">
              <h2 className="text-xl font-semibold">{HeaderTitle}</h2>
@@ -98,7 +98,7 @@ const AiLayout = ({ children, title,HeaderTitle, subtitle,currentStep = 1 }) => 
            </div>
          </section>
 
-         {/* 3. Main */}
+         {/*  Main */}
          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
            <section className="lg:col-span-7">
              {children}
@@ -111,7 +111,7 @@ const AiLayout = ({ children, title,HeaderTitle, subtitle,currentStep = 1 }) => 
              </div>
              <p className="text-zinc-400 text-sm mb-6">We'll sketch a first draft as soon as you confirm your vibe.</p>
              <div className="space-y-4">
-               {/* Preview content goes here */}
+              
              </div>
            </aside>
          </div>

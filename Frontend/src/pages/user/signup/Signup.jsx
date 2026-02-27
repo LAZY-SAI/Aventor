@@ -5,15 +5,13 @@ import { ToastContainer, toast } from "react-toastify";
 import { FaEye, FaEyeSlash, FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 
-// Phone Input Imports
+
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
 const API_URI = import.meta.env.VITE_API_URI;
 
-/**
- * Reusable Input Component for standard text/email/password
- */
+
 const InputField = ({ type, placeholder, value, onChange, icon, name, error, suffix }) => (
   <div className="relative w-full max-w-xs mb-6">
     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10">{icon}</span>
@@ -32,9 +30,7 @@ const InputField = ({ type, placeholder, value, onChange, icon, name, error, suf
   </div>
 );
 
-/**
- * Animated Background Overlay
- */
+
 const AuthOverlay = ({ isLoginView, onToggle }) => (
   <div className={`absolute top-0 left-0 w-1/2 h-full bg-indigo-600 z-50 transition-transform duration-700 ease-in-out flex flex-col items-center justify-center text-white text-center overflow-hidden ${isLoginView ? "translate-x-full" : "translate-x-0"}`}>
     <div className="p-12 z-10">
@@ -99,7 +95,7 @@ const Signup = () => {
     runRealTimeValidation(name, value);
   };
 
-  // Special handler for PhoneInput library
+ 
   const handlePhoneChange = (value) => {
     setFormData(prev => ({ ...prev, signupPhone: value }));
     runRealTimeValidation("signupPhone", value);
@@ -131,7 +127,7 @@ const Signup = () => {
         body: JSON.stringify({
           email: formData.signupEmail,
           firstName: formData.signupFirst,
-          lastName: formData.signupLast,   // FIX 3: was "LastName" (capital L), API expects "lastName"
+          lastName: formData.signupLast,   
           password: formData.signupPassword,
           username: formData.signupUser,
           phoneNumber: `+${formData.signupPhone}`,
@@ -140,7 +136,7 @@ const Signup = () => {
       const data = await res.json();
       if (res.ok) {
         if (data.accessToken) {
-          // User is immediately logged in after signup
+          
           localStorage.setItem("accessToken", data.accessToken);
           localStorage.setItem("id", data.user.id);
           toast.success(`Welcome, ${data.user.username}!`);
@@ -149,7 +145,7 @@ const Signup = () => {
             navigate(data.user.role === "ADMIN" ? "/admin" : "/construction");
           }, 1500);
         } else {
-          // FIX 4: was outside the if block, firing unconditionally even after navigation
+          
           toast.success("Account created! Please login.");
           setIsLoginView(false);
         }
@@ -175,7 +171,7 @@ const Signup = () => {
       });
       const data = await res.json();
 
-      // FIX 5: was storing tokens before checking res.ok — bad data could be saved on failed login
+      
       if (!res.ok) throw new Error(data.message || "Login failed");
 
       if (data.accessToken) {

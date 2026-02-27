@@ -9,7 +9,7 @@ import ItEdit from "../components/admin/ItEdit";
 const AdminRoutes = () => {
   return (
     <Routes>
-      {/* Index route - shows when at /admindash */}
+      {/* Index route - /admindash */}
       <Route index element={<AdminDash />} />
 
       {/* Nested admin routes */}

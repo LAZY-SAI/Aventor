@@ -53,7 +53,7 @@ const MyPlan = () => {
       .then((data) => setUserPlan(data));
   }, []);
 
-  // 2. Filter the plans based on the selected state
+  //  Filter the plans based on the selected state
   const filteredPlans = userPlan.filter(
     (plan) => plan.status.toLowerCase() === filter.toLowerCase()
   );
@@ -75,7 +75,7 @@ const MyPlan = () => {
          </div>
         </header>
 
-        {/* 3. Filter Buttons */}
+        {/*  Filter Buttons */}
         <div className="flex gap-4 mt-6 mb-8">
           {statusOptions.map((item) => (
             <button

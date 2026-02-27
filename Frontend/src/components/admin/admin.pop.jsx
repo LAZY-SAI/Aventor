@@ -10,9 +10,7 @@ import {
 } from "react-icons/fa";
 import Model from "../Model";
 
-/**
- * CUSTOM HOOK: Handle Geocoding Logic
- */
+
 const useGeocoding = (query, setFormData, setQuery) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -53,6 +51,8 @@ const useGeocoding = (query, setFormData, setQuery) => {
       name: placeName,
       latitude: place.lat,
       longitude: place.lon,
+      province:place.provience,
+      district:place.district
     }));
     setQuery(placeName);
     console.log(placeName)
@@ -63,9 +63,6 @@ const useGeocoding = (query, setFormData, setQuery) => {
   return { suggestions, showDropdown, setShowDropdown, isSearching, handleSelectSuggestion };
 };
 
-/**
- * COMPONENT: Reusable UI Elements
- */
 const FormSection = ({ title, icon: Icon, children }) => (
   <div className="p-4 bg-gray-900/50 rounded-2xl border border-gray-800 space-y-4">
     <div className="flex items-center gap-2 text-blue-400 mb-2">
@@ -139,6 +136,7 @@ const Popup = ({ isOpen, onClose, onSave }) => {
         } catch (error) {
           toast.error("Error processing image, using original.");
           setFormData((prev) => ({ ...prev, images: file }));
+          console.error(error)
         }
       }
       return;
@@ -187,7 +185,7 @@ const Popup = ({ isOpen, onClose, onSave }) => {
     setUploadProgress("Starting...");
 
     try {
-      // 1. Upload Image
+      //  Upload Image
       setUploadProgress("Uploading image...");
       const imageFormData = new FormData();
       imageFormData.append("file", formData.images);
@@ -218,7 +216,7 @@ const Popup = ({ isOpen, onClose, onSave }) => {
       const imageUrl = imageData.fileUrl || imageData.fileName || imageData.url;
       if (!imageUrl) throw new Error("Upload failed to return URL");
 
-      // 2. Create Destination
+      // Create Destination
       setUploadProgress("Creating destination...");
       const tagArray = formData.tags ? formData.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
 
@@ -306,7 +304,7 @@ const Popup = ({ isOpen, onClose, onSave }) => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto px-4 scrollbar-hide text-white">
-        {/* 2. Global Progress */}
+        {/*  Global Progress */}
         {isUploading && (
           <div className="fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50">
             <FaSpinner className="animate-spin" />
@@ -314,7 +312,7 @@ const Popup = ({ isOpen, onClose, onSave }) => {
           </div>
         )}
 
-        {/* 3. Image Section */}
+        {/*  Image Section */}
         <div className="space-y-2">
           <label className={labelClass}>Cover Photo</label>
           <div onClick={() => !isUploading && fileInputRef.current.click()} className="relative border-2 border-dashed border-gray-700 rounded-2xl h-52 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-800/50 transition-all overflow-hidden">
@@ -335,7 +333,7 @@ const Popup = ({ isOpen, onClose, onSave }) => {
           </div>
         </div>
 
-        {/* 4. Basic Info */}
+        {/* Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
             <label className={labelClass}>Destination Name *</label>
@@ -361,7 +359,7 @@ const Popup = ({ isOpen, onClose, onSave }) => {
           </div>
         </div>
 
-        {/* 5. Details & Description */}
+        {/* Details & Description */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input type="text" name="category" placeholder="Category" value={formData.category} onChange={handleChange} className={inputClass} disabled={isUploading} />
           <input type="text" name="subCategory" placeholder="Sub-Category" value={formData.subCategory} onChange={handleChange} className={inputClass} disabled={isUploading} />
@@ -369,7 +367,7 @@ const Popup = ({ isOpen, onClose, onSave }) => {
         <textarea name="shortDescription" value={formData.shortDescription} onChange={handleChange} placeholder="Short Summary" className={inputClass} disabled={isUploading} />
         <textarea name="description" value={formData.description} onChange={handleChange} rows="3" placeholder="Full Description" className={`${inputClass} resize-none`} disabled={isUploading} />
 
-        {/* 6. Location (Auto-filled by search) */}
+        {/*  Location  */}
         <FormSection title="Location Details" icon={FaMapMarkerAlt}>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <input name="country" placeholder="Country" value={formData.country} onChange={handleChange} required className={inputClass} />
@@ -381,7 +379,7 @@ const Popup = ({ isOpen, onClose, onSave }) => {
           </div>
         </FormSection>
 
-        {/* 7. Numbers & Toggles */}
+        {/*  Numbers & Toggles */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <input type="number" name="averageDurationHours" placeholder="Hrs" value={formData.averageDurationHours} onChange={handleChange} className={inputClass} />
           <input type="number" name="entranceFeeLocal" placeholder="Local Fee" value={formData.entranceFeeLocal} onChange={handleChange} className={inputClass} />
@@ -399,7 +397,7 @@ const Popup = ({ isOpen, onClose, onSave }) => {
 
         <input type="text" name="tags" value={formData.tags} onChange={handleChange} placeholder="Tags (trekking, scenic...)" className={inputClass} />
 
-        {/* 8. Footer Actions */}
+        {/*  Footer Actions */}
         <div className="flex justify-end space-x-4 pt-8 pb-4 border-t border-gray-800">
           <button type="button" onClick={onClose} className="px-6 py-2 text-gray-400 hover:text-white" disabled={isUploading}>Cancel</button>
           <button type="submit" disabled={isUploading} className="px-10 py-2 bg-blue-600 text-white rounded-full font-bold flex items-center gap-2">

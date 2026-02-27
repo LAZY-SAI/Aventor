@@ -50,13 +50,7 @@ const AdminNav = () => {
       Link: "/admin",
       category: "Overview",
     },
-    {
-      id: 2,
-      name: "Users",
-      logo: <FaUsers />,
-      Link: "/admin/users",
-      category: "Overview",
-    },
+   
     {
       id: 3,
       name: "Destinations",

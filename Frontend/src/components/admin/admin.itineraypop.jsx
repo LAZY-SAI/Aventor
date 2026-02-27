@@ -116,15 +116,14 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
     }
   };
 
-  // ✅ Step 1 only — sets formData.title and validDestination
-  // Does NOT touch selectedItemDest (Step 2's state)
+
   const selectDestination = (dest) => {
     setFormData((prev) => ({ ...prev, title: dest.name }));
     setValidDestination(dest);
     setShowDropdown(false);
   };
 
-  // ✅ Step 2 search — independent from Step 1
+ 
   const handleItemSearchChange = (e) => {
     const value = e.target.value;
     setItemSearch(value);
@@ -194,6 +193,7 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
       }
     } catch (err) {
       toast.error("Network error.");
+      console.error(err)
     } finally {
       setLoading(false);
     }
@@ -218,7 +218,7 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
     setLoading(true);
 
     const payload = {
-      // ✅ uses selectedItemDest from Step 2 search only
+    
       destinationId: selectedItemDest.id,
       dayNumber: parseInt(itemData.dayNumber),
       orderInDay: parseInt(itemData.orderInDay),
@@ -251,6 +251,7 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
       }
     } catch (err) {
       toast.error("Sync error.");
+      console.error(err)
     } finally {
       setLoading(false);
     }
@@ -277,7 +278,7 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
         <div
           className={`flex transition-transform duration-500 ease-in-out ${step === 2 ? "-translate-x-full" : "translate-x-0"}`}
         >
-          {/* STEP 1: GENERAL INFO */}
+          {/* GENERAL INFO */}
           <form
             onSubmit={submitStepOne}
             className="min-w-full px-8 py-8 space-y-6 max-h-[75vh] overflow-y-auto no-scrollbar"
@@ -333,7 +334,7 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
               </div>
             </div>
 
-            {/* STEP 1 DESTINATION SEARCH */}
+            {/*  DESTINATION SEARCH */}
             <div className="relative" ref={dropdownRef}>
               <label className={labelClass}>
                 Itinerary Name (must match existing destination)
@@ -454,12 +455,12 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
             </button>
           </form>
 
-          {/* STEP 2: ACTIVITY INFO */}
+          {/*  ACTIVITY INFO */}
           <form
             onSubmit={submitStepTwo}
             className="min-w-full px-8 py-8 space-y-6 max-h-[75vh] overflow-y-auto no-scrollbar"
           >
-            {/* STEP 2 DESTINATION SEARCH — independent from Step 1 */}
+            {/* DESTINATION SEARCH */}
             <div className="relative">
               <label className={labelClass}>
                 Activity Location / Destination
@@ -490,7 +491,7 @@ const AdItineryPop = ({ isOpen, onClose, onSave }) => {
                         key={dest.id}
                         onClick={() => {
                           setItemSearch(dest.name);
-                          setSelectedItemDest(dest); // ✅ only set from Step 2 search
+                          setSelectedItemDest(dest); 
                           setShowItemDropdown(false);
                         }}
                         className="px-4 py-3 text-sm text-gray-400 hover:bg-emerald-600 hover:text-white cursor-pointer border-b border-gray-900 last:border-0"

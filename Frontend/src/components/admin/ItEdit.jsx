@@ -561,7 +561,7 @@ const ItEdit = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                      {/* ✅ Per-activity independent destination search */}
+                    
                       <ActivityDestinationSearch
                         item={item}
                         globalIndex={item.globalIndex}

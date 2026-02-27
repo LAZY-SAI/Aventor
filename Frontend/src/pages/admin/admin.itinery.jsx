@@ -269,7 +269,7 @@ const AdItinery = () => {
                                 ref={menuRef}
                                 className="absolute right-12 top-10 w-44 bg-[#0b171f] border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 py-2 backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-200"
                               >
-                                {/* ✅ FIX: Pass coverImgUrl to handleEditClick */}
+                               
                                 <button
                                   onClick={() => handleEditClick(itemId, coverImgUrl)}
                                   className="w-full px-5 py-3 flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-gray-400 hover:bg-emerald-500 hover:text-white transition-colors"

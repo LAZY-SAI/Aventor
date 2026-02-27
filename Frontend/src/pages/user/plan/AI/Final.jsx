@@ -43,7 +43,7 @@ const Final = () => {
         </button>
       </header>
       <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
-        {/* 1. Main Itinerary Column */}
+        {/* Main Itinerary Column */}
         <div className="lg:col-span-8 space-y-10">
           <header>
             <h1 className="text-4xl font-bold">
@@ -102,7 +102,7 @@ const Final = () => {
           ))}
         </div>
 
-        {/* 2. Sticky Sidebar (Metadata) */}
+        {/*  Sticky Sidebar  */}
         <aside className="lg:col-span-4">
           <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl sticky top-6">
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">

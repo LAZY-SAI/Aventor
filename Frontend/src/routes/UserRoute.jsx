@@ -8,7 +8,7 @@ import Package from '../pages/user/plan/package/Package';
 const UserRoutes = () => {
   return (
     <Routes>
-      {/* /plan renders Plan component/ parent route */}
+      {/* / parent route */}
       <Route index element={<Plan />} />
     
       
