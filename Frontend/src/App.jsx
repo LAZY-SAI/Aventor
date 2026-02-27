@@ -69,6 +69,8 @@ const App = () => {
             }
           />
           <Route path="/signup" element={<Signup />} />
+           <Route path="/userdash" element={<Userdash />} />
+
             <Route path="/construction" element={<Construction />} />
 
           {/**protected Routes⬇️ */}

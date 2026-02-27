@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Model from "../Model";
 
-const API_URI = import.meta.env.VITE_API_URI; 
+const API_URI = import.meta.env.VITE_API_URI;
 const Userpop = ({ isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -11,27 +11,26 @@ const Userpop = ({ isOpen, onClose, onSave }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev =>({...prev, [name]:value}))
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res= await fetch(`${API_URI}/admin-users`,{
-        method:"POST",
-        headers:{
-          "content-type":"application/json"
-        },
-        body:JSON.stringify({
-          username:formData.name,
-          description:formData.description,
-          from:formData.from
-        })
-    })
+    const res = await fetch(`${API_URI}/admin-users`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        username: formData.name,
+        description: formData.description,
+        from: formData.from,
+      }),
+    });
 
-    const data = await res.json()
-    console.log("response from server",data)
-
+    const data = await res.json();
+    console.log("response from server", data);
 
     onSave(formData);
     onClose();
@@ -41,53 +40,48 @@ const Userpop = ({ isOpen, onClose, onSave }) => {
       place: "",
     });
   };
-   const inputClass = 'w-full px-4 py-3  border-t-0 border-l-0 border-r-0 border-b-1 rounded-lg focus:border-blue-500 focus:border-blue-500 focus:  outline-none rounded-none transition-all';
-  const labelClass = 'block text-sm font-semibold  py-2';
-  return <Model isOpen={isOpen} onClose={onClose} title="Add Guide">
-      
-            <form onSubmit={handleSubmit} method="POST">
-               <div>
-                 <label className={labelClass}>
-                    Name
-                </label>
-                <input 
-                type="text"
-                onChange={handleChange}
-                name="name"
-                value={formData.name}
-                placeholder="Name"
-                className={inputClass}/>
-               </div>
+  const inputClass =
+    "w-full px-4 py-3  border-t-0 border-l-0 border-r-0 border-b-1 rounded-lg focus:border-blue-500 focus:border-blue-500 focus:  outline-none rounded-none transition-all";
+  const labelClass = "block text-sm font-semibold  py-2";
+  return (
+    <Model isOpen={isOpen} onClose={onClose} title="Add Guide">
+      <form onSubmit={handleSubmit} method="POST">
+        <div>
+          <label className={labelClass}>Name</label>
+          <input
+            type="text"
+            onChange={handleChange}
+            name="name"
+            value={formData.name}
+            placeholder="Name"
+            className={inputClass}
+          />
+        </div>
 
-                 <div>
-                 <label className={labelClass}>
-                    Description
-                </label>
-                <textarea
-            
-                onChange={handleChange}
-                name="description"
-                value={formData.description}
-                placeholder="description of guide"
-                className={`${inputClass} resize-none`}/>
-               </div>
+        <div>
+          <label className={labelClass}>Description</label>
+          <textarea
+            onChange={handleChange}
+            name="description"
+            value={formData.description}
+            placeholder="description of guide"
+            className={`${inputClass} resize-none`}
+          />
+        </div>
 
+        <div>
+          <label className={labelClass}>From</label>
+          <input
+            type="text"
+            onChange={handleChange}
+            name="from"
+            value={formData.place}
+            placeholder="Place"
+            className={inputClass}
+          />
+        </div>
 
- <div>
-                 <label className={labelClass}>
-                    From
-                </label>
-                <input 
-                type="text"
-                onChange={handleChange}
-                name="from"
-                value={formData.place}
-                placeholder="Place"
-                className={inputClass}/>
-               </div>
-
-
-                <div className="flex justify-end space-x-3 pt-4">
+        <div className="flex justify-end space-x-3 pt-4">
           <button
             type="button"
             onClick={onClose}
@@ -102,10 +96,9 @@ const Userpop = ({ isOpen, onClose, onSave }) => {
             Save Destination
           </button>
         </div>
-            </form>
-       
-
-  </Model>;
+      </form>
+    </Model>
+  );
 };
 
 export default Userpop;

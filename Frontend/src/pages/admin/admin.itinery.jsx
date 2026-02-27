@@ -23,7 +23,7 @@ const AdItinery = () => {
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [activeMenuId, setActiveMenuId] = useState(null);
-  
+
   const navigate = useNavigate();
   const menuRef = useRef(null);
   const token = localStorage.getItem("accessToken");
@@ -40,8 +40,11 @@ const AdItinery = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleEditClick = (id) => {
-    navigate(`/admin/editItinerary/${id}/items`);
+  
+  const handleEditClick = (id, imageUrl) => {
+    navigate(`/admin/editItinerary/${id}/items`, {
+      state: { imageUrl },
+    });
   };
 
   const fetchItineraries = useCallback(async () => {
@@ -194,6 +197,7 @@ const AdItinery = () => {
                   {filteredItineraries.length > 0 ? (
                     filteredItineraries.map((item) => {
                       const itemId = item.id || item._id;
+                      const coverImgUrl = item.images?.[0]?.url || null;
                       return (
                         <tr
                           key={itemId}
@@ -202,15 +206,15 @@ const AdItinery = () => {
                           {/* --- ENHANCED HERO SECTION --- */}
                           <td className="px-6 py-6">
                             <div className="w-24 h-16 rounded-2xl overflow-hidden bg-gray-950 border border-white/10 flex items-center justify-center relative shadow-2xl group-hover:border-emerald-500/50 transition-all duration-500">
-                              {item.images && item.images.length > 0 ? (
-                                <>
+                              {coverImgUrl ? (
+                                <div>
                                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                   <img
-                                    src={item.images[0].url}
+                                    src={coverImgUrl}
                                     alt=""
                                     className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-1000 ease-out"
                                   />
-                                </>
+                                </div>
                               ) : (
                                 <div className="flex flex-col items-center gap-1 opacity-20">
                                   <FaImage className="text-white text-xl" />
@@ -265,8 +269,9 @@ const AdItinery = () => {
                                 ref={menuRef}
                                 className="absolute right-12 top-10 w-44 bg-[#0b171f] border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 py-2 backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-200"
                               >
+                                {/* ✅ FIX: Pass coverImgUrl to handleEditClick */}
                                 <button
-                                  onClick={() => handleEditClick(itemId)}
+                                  onClick={() => handleEditClick(itemId, coverImgUrl)}
                                   className="w-full px-5 py-3 flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-gray-400 hover:bg-emerald-500 hover:text-white transition-colors"
                                 >
                                   <FaEdit /> Edit Registry

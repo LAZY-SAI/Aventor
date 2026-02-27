@@ -149,9 +149,9 @@ const Setting = () => {
                     <p className="text-gray-500 text-xs">Last changed 3 months ago</p>
                   </div>
                 </div>
-                <button className="text-xs font-black uppercase tracking-widest text-emerald-500 hover:text-emerald-400">
+                {/* <button className="text-xs font-black uppercase tracking-widest text-emerald-500 hover:text-emerald-400">
                   Update Password
-                </button>
+                </button> */}
               </div>
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-gray-950/30 rounded-2xl border border-gray-800/50 group hover:border-emerald-500/20 transition-all">
@@ -159,21 +159,21 @@ const Setting = () => {
                   <div className="p-3 bg-gray-900 rounded-xl text-red-500/20"><FaUserShield size={18} /></div>
                   <div>
                     <p className="text-white font-bold text-sm">Two-Factor Authentication</p>
-                    <p className="text-red-500 text-[10px] font-black uppercase tracking-tighter">Current Status: Disabled</p>
+                    <p className="text-emerald-500 text-[10px] font-black uppercase tracking-tighter">Current Status: Enabled</p>
                   </div>
                 </div>
-                <button className="px-4 py-2 bg-emerald-600/10 hover:bg-emerald-600 text-emerald-500 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
+                {/* <button className="px-4 py-2 bg-emerald-600/10 hover:bg-emerald-600 text-emerald-500 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
                   Enable 2FA
-                </button>
+                </button> */}
               </div>
             </div>
           </Panel>
         </div>
 
         {/* RIGHT COLUMN */}
-        <div className="lg:col-span-4 space-y-8">
+        <div className="lg:col-span-4  space-y-8">
           <Panel title="Account Status">
-            <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl">
+            <div className="p-4 bg-emerald-500/5  border border-emerald-500/20 rounded-2xl">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-[10px] font-black uppercase text-emerald-500 tracking-widest">Active Plan</span>
                 <span className="px-2 py-0.5 bg-emerald-500 text-black text-[10px] font-black rounded">PRO</span>
@@ -183,7 +183,7 @@ const Setting = () => {
             </div>
           </Panel>
 
-          <Panel title="Danger Zone">
+          {/* <Panel title="Danger Zone">
             <div className="space-y-4">
               <p className="text-gray-500 text-xs leading-relaxed">
                 Once you delete your administrative access, there is no going back. Please be certain.
@@ -192,7 +192,7 @@ const Setting = () => {
                 Deactivate Account
               </button>
             </div>
-          </Panel>
+          </Panel> */}
         </div>
 
       </div>

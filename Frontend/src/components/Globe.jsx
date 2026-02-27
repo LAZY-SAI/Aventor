@@ -1,4 +1,4 @@
-//this whole code is from magic ui website
+
 
 import { useEffect, useRef } from "react";
 import createGlobe from "cobe";
