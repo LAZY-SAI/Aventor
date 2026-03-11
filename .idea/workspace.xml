@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="74a6b87f-ea63-4b01-ad9d-aa0754df83a6" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Backend/routes/route.itinerary.js" beforeDir="false" afterPath="$PROJECT_DIR$/Backend/routes/route.itinerary.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/src/components/admin/admin.itineraypop.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/src/components/admin/admin.itineraypop.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Frontend/src/pages/admin/admin.itinery.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/src/pages/admin/admin.itinery.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Frontend/src/components/Globe.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Frontend/src/components/Globe.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,6 +81,7 @@
       <workItem from="1770872110690" duration="94000" />
       <workItem from="1771054195993" duration="24000" />
       <workItem from="1771160709565" duration="284000" />
+      <workItem from="1772011062053" duration="7000" />
     </task>
     <servers />
   </component>

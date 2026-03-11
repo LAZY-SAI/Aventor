@@ -156,15 +156,27 @@ destRoute.post("/create/destinations", async (req, res) => {
   }
 });
 
-// Get all destinations
+// Get all destinations with pagination (Size 50)
 destRoute.get("/destinations", async (req, res) => {
   const token = req.headers.authorization;
+  
+ 
+  const { page = 0, size = 50, sortBy = 'name', sortDirection = 'ASC' } = req.query;
+
   try {
     const response = await axios.get(`${BACKEND}/api/destinations`, {
       headers: { Authorization: token },
+      params: {
+        page,
+        size,
+        sortBy,
+        sortDirection
+      }
     });
+    
     res.status(200).json(response.data);
   } catch (error) {
+    console.error("❌ FETCH ERROR:", error.message);
     res.status(error.response?.status || 500).json({
       message: error.response?.data?.message || "Failed to fetch destinations"
     });
@@ -233,7 +245,7 @@ destRoute.delete("/delete/destination/:id", async (req, res) => {
     console.log("=== DELETE DESTINATION ===");
     console.log("ID:", id);
 
-    // Step 1: Fetch destination to get image information
+   
     console.log("📥 Fetching destination data...");
     const destinationResponse = await axios.get(
       `${BACKEND}/api/destinations/${id}`,
@@ -245,7 +257,7 @@ destRoute.delete("/delete/destination/:id", async (req, res) => {
     const destination = destinationResponse.data;
     console.log("Destination data received");
 
-    // Step 2: Delete images from Cloudinary if they exist
+  
     if (destination.images && Array.isArray(destination.images) && destination.images.length > 0) {
       console.log(`🗑️ Deleting ${destination.images.length} images from Cloudinary...`);
       const deletionResults = await deleteCloudinaryImages(destination.images);
@@ -256,7 +268,7 @@ destRoute.delete("/delete/destination/:id", async (req, res) => {
       console.log("ℹ️ No images to delete from Cloudinary");
     }
 
-    // Step 3: Delete destination from backend
+   
     console.log("🗑️ Deleting destination from database...");
     const response = await axios.delete(
       `${BACKEND}/api/destinations/${id}`,
@@ -291,5 +303,53 @@ destRoute.delete("/delete/destination/:id", async (req, res) => {
     }
   }
 });
+
+destRoute.get('/search/geocode',async(req,res)=>{
+  const {address} =  req.query
+  try{
+      const response = await axios.get(`https://nominatim.openstreetmap.org/search`,{
+        params:{
+          q:address,
+          format:'json',
+          limit:1
+        },
+        headers:{
+          "User-Agent":"Yatrika/1.0"
+        }
+      })
+      if (response.data.length > 0) {
+            const { lat, lon, display_name } = response.data[0];
+            res.json({ lat, lon, address: display_name });
+        } else {
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+  }
+  catch(error)
+  {
+    console.error(error)
+  }
+})
+
+destRoute.get("/destination/name",async(req,res)=>{
+  const token = req.headers.authorization
+  try{
+    const response = await axios.get(`${BACKEND}/api/destinations/by-name`,
+      {
+        headers:{
+          Authorization:token
+        }
+      }
+    )
+    res.status(201).json(response.data)
+  }
+  catch(error)
+  {
+    console.error("Error:", error.message);
+      res.status(500).json({
+        message: "Failed to delete destination",
+        error: error.message
+      });
+  }
+})
 
 export default destRoute;

@@ -24,10 +24,10 @@ adUser.get("/admin/userStats", async (req, res) => {
                 }
             }
         );
-        console.log("Response:", response.data) // ADD THIS
+        console.log("Response:", response.data) 
         res.status(200).json(response.data);
     } catch (error) {
-        console.error("Full error:", error.message); // CHECK THIS
+        console.error("Full error:", error.message); 
         res.status(500).json({ message: "Failed to fetch admin users" });
     }
 });

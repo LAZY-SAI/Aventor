@@ -29,7 +29,7 @@ const borderColors = {
   error: "border-rose-500/20",
 };
 
-const ActivityLog = ({ entries, delay = 0 }) => {
+const ActivityLog = ({ entries=[], delay = 0 }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

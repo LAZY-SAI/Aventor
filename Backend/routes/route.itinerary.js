@@ -122,10 +122,14 @@ itineraryRoute.post("/itinerary/:id/items", async (req, res) => {
       endTime: toTimeString(item.endTime),
     }));
 
-    const payload = formattedItems[0];
-    console.log("📤 Final payload to backend:", JSON.stringify(payload, null, 2));
+    const result = [];
+   
 
-    const response = await retryRequest(() =>
+    
+    for(const payload of formattedItems)
+    {
+       console.log("📤 Sending item to backend:", JSON.stringify(payload, null, 2));
+      const response = await retryRequest(() =>
       apiClient.post(`${BACKEND}/api/v1/admin/itineraries/${id}/items`, payload, {
         headers: {
           Authorization: token,
@@ -134,8 +138,10 @@ itineraryRoute.post("/itinerary/:id/items", async (req, res) => {
         },
       })
     );
+    result.push(response.data)
+    }
 
-    res.status(200).json({ message: "Items added successfully", data: response.data });
+    res.status(200).json({ message: "Items added successfully", data: result });
   } catch (error) {
     console.error("❌ Add Items Error:", error.response?.data || error.message);
     res.status(error.response?.status || 500).json({
@@ -223,7 +229,7 @@ itineraryRoute.put("/itineraries/:id", async (req, res) => {
       startDate: body.startDate || null,
       endDate: body.endDate || null,
       estimatedBudget: body.estimatedBudget ? parseFloat(body.estimatedBudget) : 0,
-      images: body.images || [],
+      images: body.images || null,
     };
 
     console.log("Updating header:", JSON.stringify(payload, null, 2));
@@ -268,6 +274,7 @@ itineraryRoute.put("/itineraries/:id/items/:itemId", async (req, res) => {
       activityType: body.activityType || "VISIT",
       estimatedCost: parseFloat(body.estimatedCost) || 0,
       isVisited: body.isVisited ?? true,
+     
     };
 
     console.log("PUT item payload to Java:", JSON.stringify(payload, null, 2));
@@ -318,5 +325,7 @@ itineraryRoute.delete("/itineraries/:id", async (req, res) => {
     });
   }
 });
+
+
 
 export default itineraryRoute;

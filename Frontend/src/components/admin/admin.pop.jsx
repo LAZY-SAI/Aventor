@@ -44,18 +44,26 @@ const useGeocoding = (query, setFormData, setQuery) => {
   }, [query]);
 
   const handleSelectSuggestion = (place) => {
+    const address = place.address || {};
     const placeName = place.display_name.split(",")[0];
     setFormData((prev) => ({
       ...prev,
       name: placeName,
       latitude: place.lat,
       longitude: place.lon,
-      province: place.provience,
-      district: place.district,
+
+      province: address.state || address.province || "",
+      district: address.county || address.district || "",
+      municipality:
+        address.municipality ||
+        address.city ||
+        address.town ||
+        address.village ||
+        "",
     }));
     setQuery(placeName);
     console.log(placeName);
-    setShowDropdown(false);
+    setShowDropdown(true);
     setSuggestions([]);
   };
 
@@ -485,7 +493,6 @@ const Popup = ({ isOpen, onClose, onSave }) => {
             <option value="Autumn">Autumn (Sep - Nov)</option>
             <option value="Winter">Winter (Dec - Feb)</option>
             <option value="All">Year Round</option>
-           
           </select>
         </div>
         {/* Details & Description */}
@@ -533,9 +540,7 @@ const Popup = ({ isOpen, onClose, onSave }) => {
             <input
               name="country"
               placeholder="Country"
-              value={formData.country
-                || "Nepal"
-              }
+              value={formData.country || "Nepal"}
               onChange={handleChange}
               required
               className={inputClass}

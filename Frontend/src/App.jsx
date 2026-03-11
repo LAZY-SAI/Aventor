@@ -6,7 +6,7 @@ import Signup from "./pages/user/signup/Signup";
 import Footer from "./section/Footer";
 import Userdash from "./pages/user/UserDash";
 import Construction from "./pages/user/toBecontinue/Construction";
-import UserRoutes from "./routes/UserRoute";
+// import UserRoutes from "./routes/UserRoute";
 import AdminRoutes from "./routes/AdminRoute";
 import AiRoute from "./routes/AiRoute";
 import Nav from "./components/Nav";
@@ -19,13 +19,13 @@ const App = () => {
   const hideFooterRoutes = [
     "/signup",
     "/construction",
-    "/userdash",
+  
     "/plan",
     "/profile",
     "/posts",
     "/discover",
     "/admin",
-    "/admin/users",
+    
     "/admin/destination",
     "/admin/trip",
     "/admin/notify",
@@ -45,7 +45,7 @@ const App = () => {
   ];
 
   const showNavRoutes = [
-    "/userdash",
+    
     "/plan",
     "/profile",
     "/posts",
@@ -76,40 +76,40 @@ const App = () => {
           {/**protected Routes⬇ */}
 
          
-          <Route
+          {/* <Route
             path="/discover"
             element={
               <ProtectedRoute>
                 <Discover />
               </ProtectedRoute>
             }
-          />
+          /> */}
 
           {/* User planning routes with wildcard */}
-          <Route
+          {/* <Route
             path="/plan/*"
             element={
               <ProtectedRoute>
                 <UserRoutes />
               </ProtectedRoute>
             }
-          />
-          <Route
+          /> */}
+          {/* <Route
             path="/AiPlan/*"
             element={
               <ProtectedRoute>
                 <AiRoute />
               </ProtectedRoute>
             }
-          />
-          <Route
+          /> */}
+          {/* <Route
             path="/posts"
             element={
               <ProtectedRoute>
                 <Post />
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route
             path="/profile"
             element={
